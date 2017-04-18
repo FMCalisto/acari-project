@@ -2,7 +2,7 @@
 
 clear all
 
-imgbk = imread('Pedestrian_dataBase/ped7c0000.tif');
+imgbk = imread('../frames/SonofMated200001.jpg');
 
 thr = 40;
 minArea = 200;
@@ -18,7 +18,7 @@ se = strel('disk',3);
 
 figure;
 for i=0:seqLength
-    imgfr = imread(sprintf('Pedestrian_dataBase/ped7c%.4d.tif',baseNum+i));
+    imgfr = imread(sprintf('../frames/SonofMated2%.5d.jpg',baseNum+i));
     hold off
     imshow(imgfr);
     
