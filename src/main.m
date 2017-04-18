@@ -2,67 +2,49 @@
 
 clear all
 
-vid = VideoReader('../SonMated/SonofMated2.avi');
-
-nFrame= 40*25;
-step=20;
-
-img=read(vid, 1);
-Bkg=zeros(size(img));
-alfa=0.05;
-figure; hold on
-
-%Exprimentar varios valores para ALPHA
-
-for i = 1 : step : nFrame
-    i
-    img = read(vid, i);
-    Y = img;
-    Bkg = alfa * double(Y) + (1-alfa) * double(Bkg);
-    imshow(uint8(Bkg)); drawnow
-end
-
-% ------------ Fim ------------------- %
+imgbk = imread('Pedestrian_dataBase/ped7c0000.tif');
 
 thr = 40;
 minArea = 200;
+
 baseNum = 1350;
+seqLength = 100;
 
-vid4D = zeros([vid.Height vid.Width 3 nFrames/step]);
-figure,
-k = 1;
-
+% baseNum = 1374;
+% seqLength = 0;
+% 
+%imshow(imgdif)
 se = strel('disk',3);
 
-for i = 1 : step : nFrames
-    i
-    img = read(vid, i);
-    vid4D(:,:,:,k) = img;
-    %imshow(img); drawnow
-    k = k + 1;
-    %pause
+figure;
+for i=0:seqLength
+    imgfr = imread(sprintf('Pedestrian_dataBase/ped7c%.4d.tif',baseNum+i));
+    hold off
+    imshow(imgfr);
     
-    Y = img;
-    Bkg = alfa * double(Y) + (1-alfa) * double(Bkg);
+    imgdif = (abs(double(imgbk(:,:,1))-double(imgfr(:,:,1)))>thr) | ...
+        (abs(double(imgbk(:,:,2))-double(imgfr(:,:,2)))>thr) | ...
+        (abs(double(imgbk(:,:,3))-double(imgfr(:,:,3)))>thr);
     
-    imshow(uint8(Bkg)); drawnow
+    bw = imclose(imgdif,se);
+    %imshow(bw)
+    [lb num]=bwlabel(bw);
+    regionProps = regionprops(lb,'area','FilledImage','Centroid');
+    inds = find([regionProps.Area]>minArea);
     
+    regnum = length(inds);
+    
+    if regnum
+        for j=1:regnum
+            [lin col]= find(lb == inds(j));
+            upLPoint = min([lin col]);
+            dWindow  = max([lin col]) - upLPoint + 1;
+           
+            rectangle('Position',[fliplr(upLPoint) fliplr(dWindow)],'EdgeColor',[1 1 0],...
+                'linewidth',2);
+        end
+    end
+    drawnow
 end
-
-bkg = median(vid4D, 4);
-figure,
-%imshow(uint8(bkg));
-
-vid = VideoReader('../SonMated/SonofMated2.avi');
-nFrames = 40 * 25;
-step = 20;
-
-img=read(vid,1);
-Bkg=zeros (size(img));
-
-figure; hold on
-alpha=0.05; %Exprimentar varios valores para ALPHA
-
-bkg = median(vid4D, 4);
-figure,
-%imshow(uint8(bkg));
+    
+    
