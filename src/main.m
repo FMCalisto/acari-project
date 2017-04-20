@@ -2,7 +2,7 @@
 
 clear all
 
-imgbk = imread('../frames/SonofMated200001.jpg');
+imgbk = imread('../frames/SonofMated2/SonofMated200001.jpg');
 
 thr = 40;
 minArea = 200;
@@ -18,7 +18,7 @@ se = strel('disk',3);
 
 figure;
 for i=0:seqLength
-    imgfr = imread(sprintf('../frames/SonofMated2%.5d.jpg',baseNum+i));
+    imgfr = imread(sprintf('../frames/SonofMated2/SonofMated2%.5d.jpg',baseNum+i));
     hold off
     imshow(imgfr);
     
