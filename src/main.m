@@ -44,17 +44,24 @@ for i = 0 : step : nFrame
     imgUInt8 = uint8(Bkg);
     imgUInt8Last = uint8(BkgLast);
     %imshow(imgUInt8); drawnow
-    imshow(imgUInt8Last); drawnow
+    %imshow(imgUInt8Last); drawnow
+    
+end
+
+imgBkgBase = imgUInt8;
+
+for i = 0 : step : nFrame
+    imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', baseNum+i));
     
     hold off
-    %imshow(imgfr);
+    imshow(imgfrNew);
     
-    imgdif = (abs(double(imgUInt8(:,:,1))-double(imgfr(:,:,1)))>thr) | ...
-        (abs(double(imgUInt8(:,:,2))-double(imgfr(:,:,2)))>thr) | ...
-        (abs(double(imgUInt8(:,:,3))-double(imgfr(:,:,3)))>thr);
+    imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
+        (abs(double(imgBkgBase(:,:,2))-double(imgfrNew(:,:,2)))>thr) | ...
+        (abs(double(imgBkgBase(:,:,3))-double(imgfrNew(:,:,3)))>thr);
     
     bw = imclose(imgdif,se);
-    %imshow(bw)
+    %%%%%%imshow(bw)
     [lb num]=bwlabel(bw);
     regionProps = regionprops(lb,'area','FilledImage','Centroid');
     inds = find([regionProps.Area]>minArea);
@@ -73,7 +80,6 @@ for i = 0 : step : nFrame
                       'linewidth',2);
         end
     end
-    %drawnow
-end
-    
+    drawnow
+end  
     
