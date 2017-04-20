@@ -1,24 +1,19 @@
-
-
 clear all
 
-imgbk = imread('../frames/SonofMated2/SonofMated200001.jpg');
+%imgbk = imread('../frames/SonofMated2/SonofMated200001.jpg');
+imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
 
-thr = 40;
-minArea = 200;
-
+thr = 25;
+minArea = 50;
 baseNum = 1350;
 seqLength = 100;
 
-% baseNum = 1374;
-% seqLength = 0;
-% 
-%imshow(imgdif)
 se = strel('disk',3);
 
-figure;
+%figure;
 for i=0:seqLength
-    imgfr = imread(sprintf('../frames/SonofMated2/SonofMated2%.5d.jpg',baseNum+i));
+    %imgfr = imread(sprintf('../frames/SonofMated2/SonofMated2%.5d.jpg',baseNum+i));
+    imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg',baseNum+i));
     hold off
     imshow(imgfr);
     
@@ -40,8 +35,10 @@ for i=0:seqLength
             upLPoint = min([lin col]);
             dWindow  = max([lin col]) - upLPoint + 1;
            
-            rectangle('Position',[fliplr(upLPoint) fliplr(dWindow)],'EdgeColor',[1 1 0],...
-                'linewidth',2);
+            rectangle('Position', ...
+                      [fliplr(upLPoint) fliplr(dWindow)], ...
+                      'EdgeColor',[1 1 0], ...
+                      'linewidth',2);
         end
     end
     drawnow
