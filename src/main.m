@@ -11,11 +11,12 @@ clear all
 
 %imgbk = imread('../frames/SonofMated2/SonofMated200001.jpg');
 imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
+%imgbk = imread('../frames/SonofMated10/SonofMated1000000.jpg');
 
 thr = 25;
 minArea = 50;
 baseNum = 262;
-seqLength = 5333;
+seqLength = 23353;
 
 se = strel('disk',3);
 
@@ -25,6 +26,7 @@ nFrame= 40*25;
 step=20;
 
 Bkg=zeros(size(imgbk));
+BkgLast=zeros(size(imgbk));
 alfa=0.05;
 figure; hold on
 
@@ -33,14 +35,19 @@ figure; hold on
 for i = 0 : step : nFrame
     i
     imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', baseNum+i));
+    imgfr2 = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', seqLength - i));
     Y = imgfr;
-    Bkg = alfa * double(Y) + (1-alfa) * double(Bkg);
+    Y2 = imgfr2;
+    Bkg = alfa * double(Y) + (1 - alfa) * double(Bkg);
+    BkgLast = alfa * double(Y2) + (1 - alfa) * double(BkgLast);
     
     imgUInt8 = uint8(Bkg);
+    imgUInt8Last = uint8(BkgLast);
     %imshow(imgUInt8); drawnow
+    imshow(imgUInt8Last); drawnow
     
     hold off
-    imshow(imgfr);
+    %imshow(imgfr);
     
     imgdif = (abs(double(imgUInt8(:,:,1))-double(imgfr(:,:,1)))>thr) | ...
         (abs(double(imgUInt8(:,:,2))-double(imgfr(:,:,2)))>thr) | ...
@@ -66,7 +73,7 @@ for i = 0 : step : nFrame
                       'linewidth',2);
         end
     end
-    drawnow
+    %drawnow
 end
     
     
