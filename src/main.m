@@ -5,7 +5,7 @@ imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
 
 thr = 25;
 minArea = 50;
-baseNum = 1350;
+baseNum = 262;
 seqLength = 100;
 
 se = strel('disk',3);
