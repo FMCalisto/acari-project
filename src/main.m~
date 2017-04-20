@@ -2,65 +2,54 @@ clear all
 
 % PERGUNTAS
 %
+% 1) Como retiro a funcionalidade de manter uma ROI no inicio das frames?
 % 2) Como e que faco a funcionalidade de vis. da trajectoria?
 % 2.1) Pode ser as varias box ao longo do tempo?
 % 3) O que e o num de deteccao de falhas?
 % 4) Que key-frames sao estas?
 %
 
+%imgbk = imread('../frames/SonofMated2/SonofMated200001.jpg');
 imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
+%imgbk = imread('../frames/SonofMated10/SonofMated1000000.jpg');
 
-thr = 29; % Optimal Tested Value: 29
-minArea = 7; % Optimal Tested Value: 7
+thr = 25;
+minArea = 50;
 baseNum = 262;
 seqLength = 23353;
 
 se = strel('disk',3);
 
-% -------------------- Backgroud -------------------- %
+% --------- cBkg2 -----------%
 
 nFrame= 40*25;
 step=20;
 
 Bkg=zeros(size(imgbk));
-BkgLast=zeros(size(imgbk));
 alfa=0.05;
 figure; hold on
 
 %Exprimentar varios valores para ALPHA
 
 for i = 0 : step : nFrame
-    imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
-                   baseNum+i));
+    i
+    imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', baseNum+i));
     Y = imgfr;
-    Bkg = alfa * double(Y) + (1 - alfa) * double(Bkg);
+    Bkg = alfa * double(Y) + (1-alfa) * double(Bkg);
+    
     
     imgUInt8 = uint8(Bkg);
-    imgUInt8Last = uint8(BkgLast);
     %imshow(imgUInt8); drawnow
-    %imshow(imgUInt8Last); drawnow
-    
-end
-
-% --------------------------------------------------- %
-
-imgBkgBase = imgUInt8;
-
-% -------------------- ROI -------------------- %
-
-for i = 0 : step : nFrame
-    imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
-                      baseNum+i));
     
     hold off
-    imshow(imgfrNew);
+    imshow(imgfr);
     
-    imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
-        (abs(double(imgBkgBase(:,:,2))-double(imgfrNew(:,:,2)))>thr) | ...
-        (abs(double(imgBkgBase(:,:,3))-double(imgfrNew(:,:,3)))>thr);
+    imgdif = (abs(double(imgUInt8(:,:,1))-double(imgfr(:,:,1)))>thr) | ...
+        (abs(double(imgUInt8(:,:,2))-double(imgfr(:,:,2)))>thr) | ...
+        (abs(double(imgUInt8(:,:,3))-double(imgfr(:,:,3)))>thr);
     
     bw = imclose(imgdif,se);
-    %%%%%%imshow(bw)
+    %imshow(bw)
     [lb num]=bwlabel(bw);
     regionProps = regionprops(lb,'area','FilledImage','Centroid');
     inds = find([regionProps.Area]>minArea);
@@ -81,5 +70,5 @@ for i = 0 : step : nFrame
     end
     drawnow
 end
-
-% --------------------------------------------------- %
+    
+    
