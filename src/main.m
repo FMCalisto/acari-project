@@ -1,5 +1,14 @@
 clear all
 
+% PERGUNTAS
+%
+% 1) Como retiro a funcionalidade de manter uma ROI no inicio das frames?
+% 2) Como e que faco a funcionalidade de vis. da trajectoria?
+% 2.1) Pode ser as varias box ao longo do tempo?
+% 3) O que e o num de deteccao de falhas?
+% 4) Que key-frames sao estas?
+%
+
 %imgbk = imread('../frames/SonofMated2/SonofMated200001.jpg');
 imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
 
