@@ -9,18 +9,16 @@ clear all
 % 4) Que key-frames sao estas?
 %
 
-%imgbk = imread('../frames/SonofMated2/SonofMated200001.jpg');
 imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
-%imgbk = imread('../frames/SonofMated10/SonofMated1000000.jpg');
 
-thr = 25;
-minArea = 50;
+thr = 29; % Optimal Tested Value: 29
+minArea = 7; % Optimal Tested Value: 7
 baseNum = 262;
 seqLength = 23353;
 
 se = strel('disk',3);
 
-% --------- cBkg2 -----------%
+% -------------------- Backgroud -------------------- %
 
 nFrame= 40*25;
 step=20;
@@ -33,13 +31,10 @@ figure; hold on
 %Exprimentar varios valores para ALPHA
 
 for i = 0 : step : nFrame
-    i
-    imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', baseNum+i));
-    imgfr2 = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', seqLength - i));
+    imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+                   baseNum+i));
     Y = imgfr;
-    Y2 = imgfr2;
     Bkg = alfa * double(Y) + (1 - alfa) * double(Bkg);
-    BkgLast = alfa * double(Y2) + (1 - alfa) * double(BkgLast);
     
     imgUInt8 = uint8(Bkg);
     imgUInt8Last = uint8(BkgLast);
@@ -48,10 +43,15 @@ for i = 0 : step : nFrame
     
 end
 
+% --------------------------------------------------- %
+
 imgBkgBase = imgUInt8;
 
+% -------------------- ROI -------------------- %
+
 for i = 0 : step : nFrame
-    imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', baseNum+i));
+    imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+                      baseNum+i));
     
     hold off
     imshow(imgfrNew);
@@ -81,5 +81,6 @@ for i = 0 : step : nFrame
         end
     end
     drawnow
-end  
-    
+end
+
+% --------------------------------------------------- %
