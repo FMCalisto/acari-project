@@ -12,14 +12,14 @@ imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
 
 thr = 29; % Optimal Tested Value: 29
 minArea = 7; % Optimal Tested Value: 7
-baseNum = 262;
+baseNum = 262; % Initial Frame
 seqLength = 23353;
 
 se = strel('disk',3);
 
 % -------------------- Backgroud -------------------- %
 
-nFrame= 23354; %total number of frames in the video
+nFrameBKG= 2000; %23354 frames used to compute background image
 step=20;       %faz display de step em step frames
 
 Bkg=zeros(size(imgbk));
@@ -29,7 +29,8 @@ figure; hold on
 
 %Exprimentar varios valores para ALPHA
 
-for i = 0 : step : nFrame
+for i = 0 : step : nFrameBKG
+    sprintf('BKG %d',i)
     imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                    baseNum+i));
     Y = imgfr;
@@ -44,23 +45,29 @@ end
 
 % --------------------------------------------------- %
 
-imgBkgBase = imgUInt8;
+imgBkgBase = imgUInt8; %imagem de background
 
 % -------------------- ROI -------------------- %
-
-for i = 0 : step : nFrame
+%remove object intersection
+%faz as caixinhas
+stepRoi = 20;
+nFrameROI = 23353;
+for i = 0 : stepRoi : nFrameROI
     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+i));
     
+    sprintf('ROI %d',i);
     hold off
     imshow(imgfrNew);
     
+    %compare frame with background image
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
         (abs(double(imgBkgBase(:,:,2))-double(imgfrNew(:,:,2)))>thr) | ...
         (abs(double(imgBkgBase(:,:,3))-double(imgfrNew(:,:,3)))>thr);
     
+    
     bw = imclose(imgdif,se);
-    %%%%%%imshow(bw)
+    imshow(bw)
     [lb num]=bwlabel(bw);
     regionProps = regionprops(lb,'area','FilledImage','Centroid');
     inds = find([regionProps.Area]>minArea);
