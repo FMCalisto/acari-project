@@ -1,68 +1,85 @@
-
-
 clear all
 
-vid = VideoReader('../SonMated/SonofMated2.avi');
+% PERGUNTAS
+%
+% 2) Como e que faco a funcionalidade de vis. da trajectoria?
+% 2.1) Pode ser as varias box ao longo do tempo?
+% 3) O que e o num de deteccao de falhas?
+% 4) Que key-frames sao estas?
+%
+
+imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
+
+thr = 29; % Optimal Tested Value: 29
+minArea = 7; % Optimal Tested Value: 7
+baseNum = 262;
+seqLength = 23353;
+
+se = strel('disk',3);
+
+% -------------------- Backgroud -------------------- %
 
 nFrame= 40*25;
 step=20;
 
-img=read(vid, 1);
-Bkg=zeros(size(img));
+Bkg=zeros(size(imgbk));
+BkgLast=zeros(size(imgbk));
 alfa=0.05;
 figure; hold on
 
 %Exprimentar varios valores para ALPHA
 
-for i = 1 : step : nFrame
-    i
-    img = read(vid, i);
-    Y = img;
-    Bkg = alfa * double(Y) + (1-alfa) * double(Bkg);
-    imshow(uint8(Bkg)); drawnow
-end
-
-% ------------ Fim ------------------- %
-
-thr = 40;
-minArea = 200;
-baseNum = 1350;
-
-vid4D = zeros([vid.Height vid.Width 3 nFrames/step]);
-figure,
-k = 1;
-
-se = strel('disk',3);
-
-for i = 1 : step : nFrames
-    i
-    img = read(vid, i);
-    vid4D(:,:,:,k) = img;
-    %imshow(img); drawnow
-    k = k + 1;
-    %pause
+for i = 0 : step : nFrame
+    imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+                   baseNum+i));
+    Y = imgfr;
+    Bkg = alfa * double(Y) + (1 - alfa) * double(Bkg);
     
-    Y = img;
-    Bkg = alfa * double(Y) + (1-alfa) * double(Bkg);
-    
-    imshow(uint8(Bkg)); drawnow
+    imgUInt8 = uint8(Bkg);
+    imgUInt8Last = uint8(BkgLast);
+    %imshow(imgUInt8); drawnow
+    %imshow(imgUInt8Last); drawnow
     
 end
 
-bkg = median(vid4D, 4);
-figure,
-%imshow(uint8(bkg));
+% --------------------------------------------------- %
 
-vid = VideoReader('../SonMated/SonofMated2.avi');
-nFrames = 40 * 25;
-step = 20;
+imgBkgBase = imgUInt8;
 
-img=read(vid,1);
-Bkg=zeros (size(img));
+% -------------------- ROI -------------------- %
 
-figure; hold on
-alpha=0.05; %Exprimentar varios valores para ALPHA
+for i = 0 : step : nFrame
+    imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+                      baseNum+i));
+    
+    hold off
+    imshow(imgfrNew);
+    
+    imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
+        (abs(double(imgBkgBase(:,:,2))-double(imgfrNew(:,:,2)))>thr) | ...
+        (abs(double(imgBkgBase(:,:,3))-double(imgfrNew(:,:,3)))>thr);
+    
+    bw = imclose(imgdif,se);
+    %%%%%%imshow(bw)
+    [lb num]=bwlabel(bw);
+    regionProps = regionprops(lb,'area','FilledImage','Centroid');
+    inds = find([regionProps.Area]>minArea);
+    
+    regnum = length(inds);
+    
+    if regnum
+        for j=1:regnum
+            [lin col]= find(lb == inds(j));
+            upLPoint = min([lin col]);
+            dWindow  = max([lin col]) - upLPoint + 1;
+           
+            rectangle('Position', ...
+                      [fliplr(upLPoint) fliplr(dWindow)], ...
+                      'EdgeColor',[1 1 0], ...
+                      'linewidth',2);
+        end
+    end
+    drawnow
+end
 
-bkg = median(vid4D, 4);
-figure,
-%imshow(uint8(bkg));
+% --------------------------------------------------- %
