@@ -20,13 +20,13 @@ se = strel('disk',3);
 
 % -------------------- Backgroud -------------------- %
 
-nFrameBKG= 2000; % 23354 Frames used to compute background image
+nFrameBKG= 1000; % 23354 Frames used to compute background image
 step=20;       % Faz display de step em step frames
 
 Bkg=zeros(size(imgbk));
 BkgLast=zeros(size(imgbk));
 alfa=0.05;
-figure; hold on
+mainfigure = figure; hold on
 
 %Exprimentar varios valores para ALPHA
 
@@ -42,7 +42,10 @@ for i = 0 : step : nFrameBKG
     %imshow(imgUInt8); drawnow
     %imshow(imgUInt8Last); drawnow
     if i == 500
+        %h = findobj(gcf,'Enable','on'); set(h,'Enable','inactive');
         touch(500);
+        %set(h,'Enable','on');
+        figure(mainfigure);
     end
 end
 
@@ -55,7 +58,7 @@ imgBkgBase = imgUInt8; % Imagem de background
 % Faz as caixinhas
 
 stepRoi = 20;
-nFrameROI = 23353;
+nFrameROI = 100;  % 23354 Frames used to compute background image
 
 for i = 0 : stepRoi : nFrameROI
     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
@@ -63,7 +66,8 @@ for i = 0 : stepRoi : nFrameROI
     
     sprintf('ROI %d',i);
     hold off
-    imshow(imgfrNew); 
+    imageAuxRoi = imresize(imgfrNew, 0.25);
+    imshow(imageAuxRoi); 
     
     %compare frame with background image
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
@@ -105,13 +109,13 @@ end
 
 function touch(n)
     baseNum = 262; % Initial Frame
-    figure,
-    subplot(2,3,1);
+    touchFigure = figure;
+    %subplot(2,3,1);
     str = sprintf('Touch: %d',n); title(str);
-    imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+    touchImageT = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+n));
-    
-    imshow(imgfrNew); title(str);
-    touch=n;
-    drawnow;
+    imageAux = imresize(touchImageT, 0.25);
+    imshow(imageAux); title(str);
+    %touch=n;
+    %drawnow;
 end
