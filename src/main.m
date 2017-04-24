@@ -19,8 +19,8 @@ se = strel('disk',3);
 
 % -------------------- Backgroud -------------------- %
 
-nFrameBKG= 2000; %23354 frames used to compute background image
-step=20;       %faz display de step em step frames
+nFrameBKG= 2000; % 23354 Frames used to compute background image
+step=20;       % Faz display de step em step frames
 
 Bkg=zeros(size(imgbk));
 BkgLast=zeros(size(imgbk));
@@ -45,20 +45,22 @@ end
 
 % --------------------------------------------------- %
 
-imgBkgBase = imgUInt8; %imagem de background
+imgBkgBase = imgUInt8; % Imagem de background
 
 % -------------------- ROI -------------------- %
-%remove object intersection
-%faz as caixinhas
+% Remove object intersection
+% Faz as caixinhas
+
 stepRoi = 20;
 nFrameROI = 23353;
+
 for i = 0 : stepRoi : nFrameROI
     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+i));
     
     sprintf('ROI %d',i);
     hold off
-    imshow(imgfrNew);
+    imshow(imgfrNew); 
     
     %compare frame with background image
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
@@ -67,7 +69,8 @@ for i = 0 : stepRoi : nFrameROI
     
     
     bw = imclose(imgdif,se);
-    imshow(bw)
+    str = sprintf('Frame: %d',i); title(str);
+    %%%%%%%%imshow(bw); 
     [lb num]=bwlabel(bw);
     regionProps = regionprops(lb,'area','FilledImage','Centroid');
     inds = find([regionProps.Area]>minArea);
