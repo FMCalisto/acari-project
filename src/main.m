@@ -28,7 +28,7 @@ BkgLast=zeros(size(imgbk));
 alfa=0.05;
 mainfigure = figure; hold on
 %movegui(mainfigure, 'northwest');
-set(mainfigure, 'Position', [100, 1000, 100, 100])
+%set(mainfigure, 'Position', [100, 1000, 100, 100])
 
 %Exprimentar varios valores para ALPHA
 
@@ -58,7 +58,7 @@ imgBkgBase = imgUInt8; % Imagem de background
 % Faz as caixinhas
 
 stepRoi = 20;
-nFrameROI = 100;  % 23354 Frames used to compute background image
+nFrameROI = 2000;  % 23354 Frames used to compute background image
 
 for i = 0 : stepRoi : nFrameROI
     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
@@ -66,9 +66,10 @@ for i = 0 : stepRoi : nFrameROI
     
     sprintf('ROI %d',i);
     hold off
-    imageAuxRoi = imresize(imgfrNew, 0.5);
-    imshow(imageAuxRoi);                     % Caminho rectangulos amarelos - Background
-    
+    %imageAuxRoi = imresize(imgfrNew, 0.5);
+    %set(mainfigure, 'Position', [100, 1000, 100, 100])
+    %imshow(imageAuxRoi);                     % Caminho rectangulos amarelos - Background
+    imshow(imgfrNew); %
     %compare frame with background image
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
         (abs(double(imgBkgBase(:,:,2))-double(imgfrNew(:,:,2)))>thr) | ...
