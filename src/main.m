@@ -27,6 +27,8 @@ Bkg=zeros(size(imgbk));
 BkgLast=zeros(size(imgbk));
 alfa=0.05;
 mainfigure = figure; hold on
+%movegui(mainfigure, 'northwest');
+set(mainfigure, 'Position', [100, 1000, 100, 100])
 
 %Exprimentar varios valores para ALPHA
 
@@ -42,9 +44,7 @@ for i = 0 : step : nFrameBKG
     %imshow(imgUInt8); drawnow
     %imshow(imgUInt8Last); drawnow
     if i == 500
-        %h = findobj(gcf,'Enable','on'); set(h,'Enable','inactive');
         touch(500);
-        %set(h,'Enable','on');
         figure(mainfigure);
     end
 end
@@ -66,8 +66,8 @@ for i = 0 : stepRoi : nFrameROI
     
     sprintf('ROI %d',i);
     hold off
-    imageAuxRoi = imresize(imgfrNew, 0.25);
-    imshow(imageAuxRoi); 
+    imageAuxRoi = imresize(imgfrNew, 0.5);
+    imshow(imageAuxRoi);                     % Caminho rectangulos amarelos - Background
     
     %compare frame with background image
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
@@ -110,11 +110,12 @@ end
 function touch(n)
     baseNum = 262; % Initial Frame
     touchFigure = figure;
-    %subplot(2,3,1);
+    movegui(touchFigure, 'northeast');
+    %subplot(2,2,1,'align');
     str = sprintf('Touch: %d',n); title(str);
     touchImageT = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+n));
-    imageAux = imresize(touchImageT, 0.25);
+    imageAux = imresize(touchImageT, 0.4);
     imshow(imageAux); title(str);
     %touch=n;
     %drawnow;
