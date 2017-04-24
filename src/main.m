@@ -20,7 +20,7 @@ se = strel('disk',3);
 % -------------------- Backgroud -------------------- %
 
 nFrame= 23354; %total number of frames in the video
-step=20;
+step=20;       %faz display de step em step frames
 
 Bkg=zeros(size(imgbk));
 BkgLast=zeros(size(imgbk));
