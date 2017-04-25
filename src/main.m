@@ -57,7 +57,7 @@ end
 
 imgBkgBase = imgUInt8; % Imagem de background
 
-% -------------------- ROI -------------------- %
+% -------------------- ROI -------------------------- %
 % Remove object intersection
 % Faz as caixinhas
 
@@ -80,7 +80,11 @@ for i = 0 : stepRoi : nFrameROI
     %set(mainfigure, 'Position', [100, 1000, 100, 100])lixo
     %imshow(imageAuxRoi);lixo
     
+    % --------------------------------------------------- %
+    
     imshow(imgfrNew); %% Caminho rectangulos amarelos - Background 
+    
+    % --------------------------------------------------- %
     
     %compare frame with background image
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
@@ -90,7 +94,9 @@ for i = 0 : stepRoi : nFrameROI
     
     bw = imclose(imgdif,se);
     str = sprintf('Frame: %d',i); title(str);
-    %%%%%%%%imshow(bw); 
+    % ----------------------------------------------------------- %
+    %%%%%%%%imshow(bw);  %%Mete Background preto ao mesmo tempo
+    % ----------------------------------------------------------- %
     [lb num]=bwlabel(bw);
     regionProps = regionprops(lb,'area','FilledImage','Centroid');
     inds = find([regionProps.Area]>minArea);
@@ -172,8 +178,8 @@ function touch(n)
     %touch=n;
     %drawnow;
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %     Colocar Rectangulos     %
+     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %  !!!Colocar Rectangulos!!!  %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 end
@@ -206,7 +212,7 @@ function sex(m,l)
     %drawnow;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %     Colocar Rectangulos     %
+    %  !!!Colocar Rectangulos!!!  %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 end
