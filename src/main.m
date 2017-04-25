@@ -96,13 +96,24 @@ for i = 0 : stepRoi : nFrameROI
     inds = find([regionProps.Area]>minArea);
     
     regnum = length(inds);
-    
+    center = regionProps.Centroid;
+            
+    H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
+    imshow(H);
+            drawnow
     if regnum
         for j=1:regnum
             [lin col]= find(lb == inds(j));
             upLPoint = min([lin col]);
             dWindow  = max([lin col]) - upLPoint + 1;
-           
+            if (200 < i)&&(i < 260)    
+                disp('i');
+                disp(i);
+                disp('upLPoint');
+                disp(upLPoint);
+                disp('dWindow');
+                disp(dWindow);
+            end
             rectangle('Position', ...
                       [fliplr(upLPoint) fliplr(dWindow)], ...
                       'EdgeColor',[1 1 0], ...
@@ -127,8 +138,12 @@ for i = 0 : stepRoi : nFrameROI
             
             H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
             %J = insertMarker(H,[dWindow(1,1) dWindow(1,2)]);
+            if (200 < i)&&(i < 260)
+                disp('center');
+                disp(center);
+            end
             drawnow
-            imshow(H);
+            %imshow(H);
             drawnow
             
         end
