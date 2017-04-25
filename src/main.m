@@ -70,10 +70,18 @@ for i = 0 : stepRoi : nFrameROI
     
     sprintf('ROI %d',i);
     hold off
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                            %
+    % Tentativa de RESIZE WINDOW %
+    %                            %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     %imageAuxRoi = imresize(imgfrNew, 0.5);
     %set(mainfigure, 'Position', [100, 1000, 100, 100])
     %imshow(imageAuxRoi);                     
-    imshow(imgfrNew); %% Caminho rectangulos amarelos - Background
+    
+    imshow(imgfrNew); %% Caminho rectangulos amarelos - Background 
+    
     %compare frame with background image
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
         (abs(double(imgBkgBase(:,:,2))-double(imgfrNew(:,:,2)))>thr) | ...
@@ -89,6 +97,12 @@ for i = 0 : stepRoi : nFrameROI
     
     regnum = length(inds);
     
+%     disp(regnum);
+%     disp(regionProps);
+%     %disp(Area);
+%     disp(minArea);
+    
+    
     if regnum
         for j=1:regnum
             [lin col]= find(lb == inds(j));
@@ -99,6 +113,29 @@ for i = 0 : stepRoi : nFrameROI
                       [fliplr(upLPoint) fliplr(dWindow)], ...
                       'EdgeColor',[1 1 0], ...
                       'linewidth',2);
+
+            %shapeInserter = vision.ShapeInserter('Shape','Circles','BorderColor','Custom',...
+            %    'CustomBorderColor',yellow);
+
+            %circles = int32([upLPoint(1,1) upLPoint(1,2) 20]); %  [x1 y1 radius1]
+            %J = shapeInserter(RGB, circles);
+            %drawnow
+            
+            % --------------------------------------------------- %
+            %                                                     % 
+            %                    Marker                           % 
+            %                                                     % 
+            % --------------------------------------------------- %
+            
+            %center = find([regionProps.Centroid]>0.5);
+            
+            %%%%%%%center = regionProps.Centroid;
+            
+            %%%%%%H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
+            %J = insertMarker(H,[upLPoint(1,1) upLPoint(1,2)]);
+           %%%%%% imshow(H);
+           %%%%% %drawnow;
+            
         end
     end
     drawnow
