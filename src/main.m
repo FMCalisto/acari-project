@@ -76,9 +76,9 @@ for i = 0 : stepRoi : nFrameROI
     %                            %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    %imageAuxRoi = imresize(imgfrNew, 0.5);
-    %set(mainfigure, 'Position', [100, 1000, 100, 100])
-    %imshow(imageAuxRoi);                     
+    %imageAuxRoi = imresize(imgfrNew, 0.5);lixo
+    %set(mainfigure, 'Position', [100, 1000, 100, 100])lixo
+    %imshow(imageAuxRoi);lixo
     
     imshow(imgfrNew); %% Caminho rectangulos amarelos - Background 
     
@@ -97,12 +97,6 @@ for i = 0 : stepRoi : nFrameROI
     
     regnum = length(inds);
     
-%     disp(regnum);
-%     disp(regionProps);
-%     %disp(Area);
-%     disp(minArea);
-    
-    
     if regnum
         for j=1:regnum
             [lin col]= find(lb == inds(j));
@@ -113,7 +107,7 @@ for i = 0 : stepRoi : nFrameROI
                       [fliplr(upLPoint) fliplr(dWindow)], ...
                       'EdgeColor',[1 1 0], ...
                       'linewidth',2);
-
+            
             %shapeInserter = vision.ShapeInserter('Shape','Circles','BorderColor','Custom',...
             %    'CustomBorderColor',yellow);
 
@@ -129,12 +123,13 @@ for i = 0 : stepRoi : nFrameROI
             
             %center = find([regionProps.Centroid]>0.5);
             
-            %%%%%%%center = regionProps.Centroid;
+            center = regionProps.Centroid;
             
-            %%%%%%H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
-            %J = insertMarker(H,[upLPoint(1,1) upLPoint(1,2)]);
-           %%%%%% imshow(H);
-           %%%%% %drawnow;
+            H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
+            %J = insertMarker(H,[dWindow(1,1) dWindow(1,2)]);
+            drawnow
+            imshow(H);
+            drawnow
             
         end
     end
