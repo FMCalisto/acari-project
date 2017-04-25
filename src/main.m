@@ -96,11 +96,7 @@ for i = 0 : stepRoi : nFrameROI
     inds = find([regionProps.Area]>minArea);
     
     regnum = length(inds);
-    center = regionProps.Centroid;
-            
-    H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
-    imshow(H);
-            drawnow
+    
     if regnum
         for j=1:regnum
             [lin col]= find(lb == inds(j));
@@ -143,7 +139,7 @@ for i = 0 : stepRoi : nFrameROI
                 disp(center);
             end
             drawnow
-            %imshow(H);
+            imshow(H);
             drawnow
             
         end
