@@ -44,8 +44,12 @@ for i = 0 : step : nFrameBKG
     %imshow(imgUInt8); drawnow
     %imshow(imgUInt8Last); drawnow
     if i == 500
-        touch(500);
-        figure(mainfigure);
+        %touch(500);
+        %figure(mainfigure);
+    end
+    if i == 360
+        %sex(350,360);
+        %figure(mainfigure);
     end
 end
 
@@ -58,7 +62,7 @@ imgBkgBase = imgUInt8; % Imagem de background
 % Faz as caixinhas
 
 stepRoi = 20;
-nFrameROI = 2000;  % 23354 Frames used to compute background image
+nFrameROI = 700;  % 23354 Frames used to compute background image
 
 for i = 0 : stepRoi : nFrameROI
     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
@@ -68,8 +72,8 @@ for i = 0 : stepRoi : nFrameROI
     hold off
     %imageAuxRoi = imresize(imgfrNew, 0.5);
     %set(mainfigure, 'Position', [100, 1000, 100, 100])
-    %imshow(imageAuxRoi);                     % Caminho rectangulos amarelos - Background
-    imshow(imgfrNew); %
+    %imshow(imageAuxRoi);                     
+    imshow(imgfrNew); %% Caminho rectangulos amarelos - Background
     %compare frame with background image
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
         (abs(double(imgBkgBase(:,:,2))-double(imgfrNew(:,:,2)))>thr) | ...
@@ -101,9 +105,9 @@ for i = 0 : stepRoi : nFrameROI
 end
 
 % --------------------------------------------------- %
-% 
-%                   Print Touch
-% 
+%                                                     % 
+%                    Touch                            % 
+%                                                     % 
 % --------------------------------------------------- %
 
 end
@@ -120,4 +124,42 @@ function touch(n)
     imshow(imageAux); title(str);
     %touch=n;
     %drawnow;
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %     Colocar Rectangulos     %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+end
+
+% --------------------------------------------------- %
+%                                                     % 
+%                      Sex                            % 
+%                                                     % 
+% --------------------------------------------------- %
+
+function sex(m,l)
+    baseNum = 262; % Initial Frame
+    sexFigure = figure;
+    movegui(sexFigure, 'east');
+    
+    strSex = sprintf('Before Sex: %d',m);% title(strSex);
+    [S1, map1] =  imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+                      baseNum+m));
+    %imageAuxSex = imresize(sexImageT, 0.4);
+    
+    subplot(1,2,1,'align'), imshow(S1, map1);  title(strSex);
+    
+    strSex2 = sprintf('After Sex: %d',l); title(strSex2);
+    [S2, map2] = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+                      baseNum+l));
+    %imageAuxSex2 = imresize(sexImageT2, 0.4);
+    
+    subplot(1,2,2,'align'), imshow(S2, map2),  title(strSex2);
+    %imshow(imageAux); title(str);
+    %drawnow;
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %     Colocar Rectangulos     %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
 end
