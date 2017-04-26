@@ -26,7 +26,8 @@ step=20;       % Faz display de step em step frames
 Bkg=zeros(size(imgbk));
 BkgLast=zeros(size(imgbk));
 alfa=0.05;
-mainfigure = figure; hold on
+touchFigure = figure(2);
+mainfigure = figure(1); hold on
 %movegui(mainfigure, 'northwest');
 %set(mainfigure, 'Position', [100, 1000, 100, 100])
 
@@ -44,8 +45,8 @@ for i = 0 : step : nFrameBKG
     %imshow(imgUInt8); drawnow
     %imshow(imgUInt8Last); drawnow
     if i == 500
-        %touch(500);
-        %figure(mainfigure);
+        touch(500,touchFigure);
+        figure(mainfigure);
     end
     if i == 360
         %sex(350,360);
@@ -77,13 +78,13 @@ for i = 0 : stepRoi : nFrameROI
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %imageAuxRoi = imresize(imgfrNew, 0.5);lixo
-    %set(mainfigure, 'Position', [100, 1000, 100, 100])lixo
+    set(mainfigure, 'Position', [100, 200, 500, 500])
     %imshow(imageAuxRoi);lixo
     
     % --------------------------------------------------- %
     
     imshow(imgfrNew); %% Caminho rectangulos amarelos - Background 
-    
+    hold on
     % --------------------------------------------------- %
     
     %compare frame with background image
@@ -120,7 +121,8 @@ for i = 0 : stepRoi : nFrameROI
                       [fliplr(upLPoint) fliplr(dWindow)], ...
                       'EdgeColor',[1 1 0], ...
                       'linewidth',2);
-            
+            center = regionProps(j).Centroid;
+            plot(center(1,1),center(1,2),'+');drawnow
             %shapeInserter = vision.ShapeInserter('Shape','Circles','BorderColor','Custom',...
             %    'CustomBorderColor',yellow);
 
@@ -136,16 +138,16 @@ for i = 0 : stepRoi : nFrameROI
             
             %center = find([regionProps.Centroid]>0.5);
             
-            center = regionProps.Centroid;
-            
-            H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
+%             center = regionProps(j).Centroid;
+%            plot(col,lin,'+'); 
+%             H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
             %J = insertMarker(H,[dWindow(1,1) dWindow(1,2)]);
             if (200 < i)&&(i < 260)
                 disp('center');
                 disp(center);
             end
-            drawnow
-            imshow(H);
+            
+            %imshow(H);
             drawnow
             
         end
@@ -161,11 +163,12 @@ end
 
 end
 
-function touch(n)
+function touch(n,fig)
     baseNum = 262; % Initial Frame
-    touchFigure = figure;
-    movegui(touchFigure, 'northeast');
-    %subplot(2,2,1,'align');
+    %touchFigure = figure(2);
+    movegui(fig, 'northeast');%mudar para set coordinates
+    figure(fig); hold on
+    subplot(2,2,1);
     str = sprintf('Touch: %d',n); title(str);
     touchImageT = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+n));
