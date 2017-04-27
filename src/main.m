@@ -27,9 +27,13 @@ Bkg=zeros(size(imgbk));
 BkgLast=zeros(size(imgbk));
 alfa=0.05;
 touchFigure = figure(2);
-mainfigure = figure(1); hold on
-%movegui(mainfigure, 'northwest');
-%set(mainfigure, 'Position', [100, 1000, 100, 100])
+mainFigure = figure(1); 
+set(touchFigure, 'Position', [630, 170, 500, 500]);
+set(mainFigure, 'Position', [100, 000, 500, 1000]);
+hold on
+
+%movegui(mainFigure, 'northwest');
+%set(mainFigure, 'Position', [100, 1000, 100, 100])
 
 %Exprimentar varios valores para ALPHA
 
@@ -45,13 +49,13 @@ for i = 0 : step : nFrameBKG
     %imshow(imgUInt8); drawnow
     %imshow(imgUInt8Last); drawnow
     if i == 500
-        touch(500,touchFigure);
-        figure(mainfigure);
+        touch(500,touchFigure);   %%%%%  TOUCH  %%%%%
+        figure(mainFigure);
     end
-    if i == 360
-        %sex(350,360);
-        %figure(mainfigure);
-    end
+%     if i == 360
+%         sex(350,360, touchFigure);
+%         figure(mainFigure);   %%%%%  SEX  %%%%%
+%     end
 end
 
 % --------------------------------------------------- %
@@ -77,17 +81,18 @@ for i = 0 : stepRoi : nFrameROI
     %                            %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    %imageAuxRoi = imresize(imgfrNew, 0.5);lixo
-    set(mainfigure, 'Position', [100, 200, 500, 500])
+    %imageResizeRoi = imresize(imgfrNew, 1);%resize mainFigure
+%     set(mainFigure, 'Position', [100, 200, 500, 500])
     %imshow(imageAuxRoi);lixo
     
     % --------------------------------------------------- %
-    
+    %subplot(2,1,1,'align');  %put analized image on the left side of mainFigure
     imshow(imgfrNew); %% Caminho rectangulos amarelos - Background 
     hold on
     % --------------------------------------------------- %
     
     %compare frame with background image
+    %imgBkgBaseResize = imresize(imgBkgBase, 1);%resize back ground image
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
         (abs(double(imgBkgBase(:,:,2))-double(imgfrNew(:,:,2)))>thr) | ...
         (abs(double(imgBkgBase(:,:,3))-double(imgfrNew(:,:,3)))>thr);
@@ -122,7 +127,8 @@ for i = 0 : stepRoi : nFrameROI
                       'EdgeColor',[1 1 0], ...
                       'linewidth',2);
             center = regionProps(j).Centroid;
-            plot(center(1,1),center(1,2),'+');drawnow
+            plot(center(1,1),center(1,2),'+');
+            drawnow
             %shapeInserter = vision.ShapeInserter('Shape','Circles','BorderColor','Custom',...
             %    'CustomBorderColor',yellow);
 
@@ -166,8 +172,9 @@ end
 function touch(n,fig)
     baseNum = 262; % Initial Frame
     %touchFigure = figure(2);
-    movegui(fig, 'northeast');%mudar para set coordinates
+%     movegui(fig, 'northeast');%mudar para set coordinates
     figure(fig); hold on
+% insert touch image on figure
     subplot(2,2,1);
     str = sprintf('Touch: %d',n); title(str);
     touchImageT = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
@@ -189,26 +196,28 @@ end
 %                                                     % 
 % --------------------------------------------------- %
 
-function sex(m,l)
+function sex(m,l,fig)
+
     baseNum = 262; % Initial Frame
-    sexFigure = figure;
-    movegui(sexFigure, 'east');
-    
-    strSex = sprintf('Before Sex: %d',m);% title(strSex);
-    [S1, map1] =  imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+    movegui(fig, 'northeast');%mudar para set coordinates
+    figure(fig); hold on
+% insert before sex image on figure
+    subplot(2,2,1);
+    strSexB = sprintf('Before Sex: %d',m);title(strSexB);    
+    sexImageB = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+m));
-    %imageAuxSex = imresize(sexImageT, 0.4);
-    
-    subplot(1,2,1,'align'), imshow(S1, map1);  title(strSex);
-    
-    strSex2 = sprintf('After Sex: %d',l); title(strSex2);
-    [S2, map2] = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+    imageAuxB = imresize(sexImageB, 0.4);
+    imshow(imageAuxB); title(strSexB);
+    hold on
+% insert after sex image on figure
+    subplot(2,2,2);
+    strSexA = sprintf('After Sex: %d',l);title(strSexA);    
+    sexImageA = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+l));
-    %imageAuxSex2 = imresize(sexImageT2, 0.4);
-    
-    subplot(1,2,2,'align'), imshow(S2, map2),  title(strSex2);
-    %imshow(imageAux); title(str);
-    %drawnow;
+    imageAuxA = imresize(sexImageA, 0.4);
+    imshow(imageAuxA); title(strSexA);
+    hold on
+%     drawnow;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %  !!!Colocar Rectangulos!!!  %
