@@ -110,7 +110,7 @@ for i = 0 : stepRoi : nFrameROI
     inds = find([regionProps.Area]>minArea);
     
     regnum = length(inds);
-    %%%inds number explained
+    %%%%%%%%%%inds number explained
     %if regnum = 1 ha' 1 regiao, logo acasalamento
     %inds(1) - acaro1 e acaro2
     %if regnum = 2 ha' 2 regioes
@@ -159,12 +159,6 @@ for i = 0 : stepRoi : nFrameROI
         %caso nao existao 2 regioes nao adiciona nada    
         end
         for j=1:regnum
-%             disp('i');
-%             disp (i);
-%             disp('j');
-%             disp (j);
-%             disp ('regnum');
-%             disp (regnum);
             [lin col]= find(lb == inds(j));
             upLPoint = min([lin col]);
             dWindow  = max([lin col]) - upLPoint + 1;
@@ -173,64 +167,11 @@ for i = 0 : stepRoi : nFrameROI
                       [fliplr(upLPoint) fliplr(dWindow)], ...
                       'EdgeColor',[1 1 0], ...
                       'linewidth',2);
-%             center = regionProps(j).Centroid;
-%             area= regionProps(j).Area;
-%             disp(area);
-            
-               
-            
-            %adds centroid to acariTrail
-%             maleTrail = [maleTrail center];
-            %maleTrail[2, maleIndex] = center(1,2):
-            %drawnow
-            %shapeInserter = vision.ShapeInserter('Shape','Circles','BorderColor','Custom',...
-            %    'CustomBorderColor',yellow);
 
-            %circles = int32([upLPoint(1,1) upLPoint(1,2) 20]); %  [x1 y1 radius1]
-            %J = shapeInserter(RGB, circles);
-            %drawnow
-            
-            % --------------------------------------------------- %
-            %                                                     % 
-            %                    Marker                           % 
-            %                                                     % 
-            % --------------------------------------------------- %
-            
-            %center = find([regionProps.Centroid]>0.5);
-            
-%             center = regionProps(j).Centroid;
-%            plot(col,lin,'+'); 
-%             H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
-            %J = insertMarker(H,[dWindow(1,1) dWindow(1,2)]);
-%             if (200 < i)&&(i < 260)
-%                 disp('center');
-%                 disp(center);
-%             end
-%             
-            %imshow(H);
+
             drawnow
             
         end
-        
-%         disp('acariA-B');
-%         disp(acariA);
-%         disp(acariB);
-        
-%         disp('antes');
-%         disp(femaleTrail);
-%         disp(maleTrail);
-%         
-%         if acariA > acariB
-%             femaleTrail = [femaleTrail;[acariA.center(1,1) acariA.center(1,2)]];
-%             maleTrail = [maleTrail;[acariB.center(1,1) acariB.center(1,2)]];
-%         
-%         else
-%             femaleTrail = [femaleTrail;[acariB.center(1,1) acariB.center(1,2)]];
-%             maleTrail = [maleTrail;[acariA.center(1,1) acariA.center(1,2)]];
-%         end
-%         disp('depois');
-%         disp(femaleTrail);
-%         disp(maleTrail);
         
     end
     
@@ -323,7 +264,7 @@ function sex(m,l,fig)
 %     drawnow;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %  !!!Colocar Rectangulos!!!  %
+    %  !!!Colocar Rectangulos!!!  % fazer o try no ROI e nao no criar BKG
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 end
