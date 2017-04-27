@@ -19,10 +19,9 @@ seqLength = 23353;
 se = strel('disk',3);
 
 % -------------------- Backgroud -------------------- %
-
+nTotalFrames = 23354; %23354Frames
 nFrameBKG= 1000; % 23354 Frames used to compute background image
 step=20;       % Faz display de step em step frames
-
 Bkg=zeros(size(imgbk));
 BkgLast=zeros(size(imgbk));
 alfa=0.05;
@@ -31,14 +30,15 @@ mainFigure = figure(1);
 set(touchFigure, 'Position', [630, 170, 500, 500]);
 set(mainFigure, 'Position', [100, 000, 500, 1000]);
 hold on
+maleTrail = [];
+femaleTrail = [];
 
-%movegui(mainFigure, 'northwest');
-%set(mainFigure, 'Position', [100, 1000, 100, 100])
 
+        
 %Exprimentar varios valores para ALPHA
 
 for i = 0 : step : nFrameBKG
-    sprintf('BKG %d',i)
+    %sprintf('BKG %d',i)
     imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                    baseNum+i));
     Y = imgfr;
@@ -48,10 +48,10 @@ for i = 0 : step : nFrameBKG
     imgUInt8Last = uint8(BkgLast);
     %imshow(imgUInt8); drawnow
     %imshow(imgUInt8Last); drawnow
-    if i == 500
-        touch(500,touchFigure);   %%%%%  TOUCH  %%%%%
-        figure(mainFigure);
-    end
+%     if i == 500
+%         touch(500,touchFigure);   %%%%%  TOUCH  %%%%%
+%         figure(mainFigure);
+%     end
 %     if i == 360
 %         sex(350,360, touchFigure);
 %         figure(mainFigure);   %%%%%  SEX  %%%%%
@@ -67,9 +67,11 @@ imgBkgBase = imgUInt8; % Imagem de background
 % Faz as caixinhas
 
 stepRoi = 20;
-nFrameROI = 700;  % 23354 Frames used to compute background image
+nFrameROI = nTotalFrames;  % 23354 Frames used to compute background image
 
 for i = 0 : stepRoi : nFrameROI
+
+
     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+i));
     
@@ -86,7 +88,7 @@ for i = 0 : stepRoi : nFrameROI
     %imshow(imageAuxRoi);lixo
     
     % --------------------------------------------------- %
-    %subplot(2,1,1,'align');  %put analized image on the left side of mainFigure
+    %%%%%subplot(2,1,1,'align');  %put analized image on the left side of mainFigure
     imshow(imgfrNew); %% Caminho rectangulos amarelos - Background 
     hold on
     % --------------------------------------------------- %
@@ -108,27 +110,79 @@ for i = 0 : stepRoi : nFrameROI
     inds = find([regionProps.Area]>minArea);
     
     regnum = length(inds);
-    
+    %%%inds number explained
+    %if regnum = 1 ha' 1 regiao, logo acasalamento
+    %inds(1) - acaro1 e acaro2
+    %if regnum = 2 ha' 2 regioes
+    %inds(1) - acaro1
+    %inds(2) - acaro2
+    if i>0
+        sizeTrail = size(maleTrail);
+        if ( sizeTrail < 21)
+            plot(maleTrail(:,1),maleTrail(:,2),'*','Color','red','LineStyle','--');
+            plot(femaleTrail(:,1),femaleTrail(:,2),'*','Color','blue','LineStyle','--');
+        else
+            sizeTrail = sizeTrail(1,1);
+            for k = sizeTrail-20 : 1 : sizeTrail
+                var = k;
+                plot(maleTrail(var ,1),maleTrail(var ,2),'*','Color','red','LineStyle','--');
+                plot(femaleTrail(var ,1),femaleTrail(var ,2),'*','Color','blue','LineStyle','--');
+            end
+        end
+    end
+%     disp('regnum');
+%     disp(regnum);
     if regnum
+        regionProps(inds(1),1).Area
+        
+        %existem as 2 regioes
+        
+        if ( regnum > 1 )
+            acariA = regionProps(inds(1));
+            acariB = regionProps(inds(2));
+%             disp(acariA.Centroid);
+%             disp(acariB);
+            if (acariA.Area) > (acariB.Area)  %se A > B, A e' femea
+                femaleTrail = [femaleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
+                maleTrail = [maleTrail;[acariB.Centroid(1,1) acariB.Centroid(1,2)]];
+            else  %se A <= B, A e' macho
+                maleTrail = [maleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
+                femaleTrail = [femaleTrail;[acariB.Centroid(1,1) acariB.Centroid(1,2)]];
+            end    
+        else
+            %existem 1 regiao
+            if (regnum > 0)
+                acariA = regionProps(inds(1));
+                femaleTrail = [femaleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
+                maleTrail = [maleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
+            end
+        %caso nao existao 2 regioes nao adiciona nada    
+        end
         for j=1:regnum
+%             disp('i');
+%             disp (i);
+%             disp('j');
+%             disp (j);
+%             disp ('regnum');
+%             disp (regnum);
             [lin col]= find(lb == inds(j));
             upLPoint = min([lin col]);
             dWindow  = max([lin col]) - upLPoint + 1;
-            if (200 < i)&&(i < 260)    
-                disp('i');
-                disp(i);
-                disp('upLPoint');
-                disp(upLPoint);
-                disp('dWindow');
-                disp(dWindow);
-            end
+
             rectangle('Position', ...
                       [fliplr(upLPoint) fliplr(dWindow)], ...
                       'EdgeColor',[1 1 0], ...
                       'linewidth',2);
-            center = regionProps(j).Centroid;
-            plot(center(1,1),center(1,2),'+');
-            drawnow
+%             center = regionProps(j).Centroid;
+%             area= regionProps(j).Area;
+%             disp(area);
+            
+               
+            
+            %adds centroid to acariTrail
+%             maleTrail = [maleTrail center];
+            %maleTrail[2, maleIndex] = center(1,2):
+            %drawnow
             %shapeInserter = vision.ShapeInserter('Shape','Circles','BorderColor','Custom',...
             %    'CustomBorderColor',yellow);
 
@@ -148,17 +202,66 @@ for i = 0 : stepRoi : nFrameROI
 %            plot(col,lin,'+'); 
 %             H = insertMarker(imgfrNew,[center(1,1) center(1,2)]);
             %J = insertMarker(H,[dWindow(1,1) dWindow(1,2)]);
-            if (200 < i)&&(i < 260)
-                disp('center');
-                disp(center);
-            end
-            
+%             if (200 < i)&&(i < 260)
+%                 disp('center');
+%                 disp(center);
+%             end
+%             
             %imshow(H);
             drawnow
             
         end
+        
+%         disp('acariA-B');
+%         disp(acariA);
+%         disp(acariB);
+        
+%         disp('antes');
+%         disp(femaleTrail);
+%         disp(maleTrail);
+%         
+%         if acariA > acariB
+%             femaleTrail = [femaleTrail;[acariA.center(1,1) acariA.center(1,2)]];
+%             maleTrail = [maleTrail;[acariB.center(1,1) acariB.center(1,2)]];
+%         
+%         else
+%             femaleTrail = [femaleTrail;[acariB.center(1,1) acariB.center(1,2)]];
+%             maleTrail = [maleTrail;[acariA.center(1,1) acariA.center(1,2)]];
+%         end
+%         disp('depois');
+%         disp(femaleTrail);
+%         disp(maleTrail);
+        
     end
+    
+        % --------------------------------------------------- %
+        %   Grafic    correr depois de criar distancia        % 
+        % --------------------------------------------------- %
+    
+%     warning off;
+% 
+%     h = animatedline('Marker','v','Color','red','LineStyle','-');
+%     axis([0,4*pi,-1,1])
+% 
+%     x = linspace(0,4*pi,1000);
+%     y = sin(x);
+% 
+%     title('Graph of Sine and Cosine Between -2\pi and 2\pi');
+%     xlabel('-2\pi < x < 2\pi'); % x-axis label
+%     ylabel('sine and cosine values'); % y-axis label
+%     legend('y = sin(x)','y = cos(x)','Location','southwest');
+% 
+%     %%get xdata is distanciaEntreAcaros and ydata is time to grafic
+%     %% [xdata,ydata] = getpoints(h);
+%      
+%     for p = 1:length(x)
+%         addpoints(h,x(p),y(p));
+%         drawnow
+%     end
+%     %clearpoints(h) %Limpar Points
+
     drawnow
+    
 end
 
 % --------------------------------------------------- %
