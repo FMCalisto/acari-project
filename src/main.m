@@ -13,18 +13,19 @@ imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
 
 thr = 29; % Optimal Tested Value: 29
 minArea = 7; % Optimal Tested Value: 7
-baseNum = 262; % Initial Frame
+%baseNum = 262; % Initial Frame: 262
+baseNum = 15500; % Copule Frame: 15500
 seqLength = 23353;
 
 se = strel('disk',3);
 
 % -------------------- Backgroud -------------------- %
-nTotalFrames = 23354; %23354Frames
+nTotalFrames = 23353; %23354Frames
 nFrameBKG= 1000; % 23354 Frames used to compute background image
-step=20;       % Faz display de step em step frames
+step = 20;       % Faz display de step em step frames
 Bkg=zeros(size(imgbk));
 BkgLast=zeros(size(imgbk));
-alfa=0.05;
+alfa=0.10;
 touchFigure = figure(2);
 mainFigure = figure(1); 
 set(touchFigure, 'Position', [630, 170, 500, 500]);
@@ -57,6 +58,8 @@ for i = 0 : step : nFrameBKG
 %         figure(mainFigure);   %%%%%  SEX  %%%%%
 %     end
 end
+
+% ------------------ END Backgroud ------------------ %
 
 % --------------------------------------------------- %
 
@@ -116,20 +119,35 @@ for i = 0 : stepRoi : nFrameROI
     %if regnum = 2 ha' 2 regioes
     %inds(1) - acaro1
     %inds(2) - acaro2
-    if i>0
-        sizeTrail = size(maleTrail);
-        if ( sizeTrail < 21)
-            plot(maleTrail(:,1),maleTrail(:,2),'*','Color','red','LineStyle','--');
-            plot(femaleTrail(:,1),femaleTrail(:,2),'*','Color','blue','LineStyle','--');
-        else
-            sizeTrail = sizeTrail(1,1);
-            for k = sizeTrail-20 : 1 : sizeTrail
+    sizeTrail = size(maleTrail);
+    for k = sizeTrail-20 : 1 : sizeTrail
+        sizeTrail = sizeTrail(1,1);
+        if i > 0
+            if (sizeTrail < 21)
+                plot(maleTrail(:,1),maleTrail(:,2),'*','Color', ...
+                    'red', 'LineStyle','-');
+                plot(femaleTrail(:,1),femaleTrail(:,2),'*','Color', ...
+                    'blue','LineStyle','-');
+            else
                 var = k;
-                plot(maleTrail(var ,1),maleTrail(var ,2),'*','Color','red','LineStyle','--');
-                plot(femaleTrail(var ,1),femaleTrail(var ,2),'*','Color','blue','LineStyle','--');
+                plot(maleTrail(var, 1),maleTrail(var, 2),'*', ...
+                    'Color', 'red','LineStyle','-');
+                plot(femaleTrail(var, 1),femaleTrail(var, 2),'*', ...
+                    'Color', 'blue','LineStyle','-');
+                disp('Male Position: ');
+                disp(maleTrail(var, 1));
+                D = pdist2(femaleTrail(var, 1), maleTrail(var, 2));
+                disp('Pairwise Distance: ');
+                disp(D);
             end
         end
     end
+    trailNorm = norm(femaleTrail - maleTrail);
+    %D = pdist2(femaleTrail(:, 1), maleTrail(:, 2));
+    %disp('Pairwise Distance: ');
+    %disp(D);
+%     disp('Male Position: ');
+%     disp(maleTrail(:, 1));
 %     disp('regnum');
 %     disp(regnum);
     if regnum
