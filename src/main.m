@@ -14,10 +14,23 @@ imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
 thr = 29; % Optimal Tested Value: 29
 minArea = 7; % Optimal Tested Value: 7
 %baseNum = 262; % Initial Frame: 262
-baseNum = 15500; % Copule Frame: 15500
+baseNum = 15500; % Couple Frame: 15500
 seqLength = 23353;
 
 se = strel('disk',3);
+
+% Timer Functions %
+% t = timer;
+% t.StartFcn = @(~,thisEvent)disp([thisEvent.Type ' executed '...
+%     datestr(thisEvent.Data.time,'SS.FFF')]);
+% t.TimerFcn = @(~,thisEvent)disp([thisEvent.Type ' executed '...
+%      datestr(thisEvent.Data.time,'SS.FFF')]);
+% t.StopFcn = @(~,thisEvent)disp([thisEvent.Type ' executed '...
+%     datestr(thisEvent.Data.time,'SS.FFF')]);
+% t.Period = 5;
+% t.TasksToExecute = 3;
+% t.ExecutionMode = 'fixedRate';
+t = datetime('now');
 
 % -------------------- Backgroud -------------------- %
 nTotalFrames = 23353; %23354Frames
@@ -25,7 +38,7 @@ nFrameBKG= 1000; % 23354 Frames used to compute background image
 step = 20;       % Faz display de step em step frames
 Bkg=zeros(size(imgbk));
 BkgLast=zeros(size(imgbk));
-alfa=0.10;
+alfa=0.25;
 touchFigure = figure(2);
 mainFigure = figure(1); 
 set(touchFigure, 'Position', [630, 170, 500, 500]);
@@ -139,6 +152,17 @@ for i = 0 : stepRoi : nFrameROI
                 D = pdist2(femaleTrail(var, 1), maleTrail(var, 2));
                 disp('Pairwise Distance: ');
                 disp(D);
+                if (D < 100)
+                    disp('TOUCH');
+                    % Count how much time in touch
+                    % if n time in touch = couple
+                    Seconds = second(t);
+                    disp('======= Seconds: ');
+                    disp(Seconds);
+                    if (Seconds > 300)
+                        disp('-----------> COUPLE <------------');
+                    end
+                end
             end
         end
     end
