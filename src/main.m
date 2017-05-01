@@ -14,7 +14,7 @@ imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
 thr = 29; % Optimal Tested Value: 29
 minArea = 7; % Optimal Tested Value: 7
 %baseNum = 262; % Initial Frame: 262
-baseNum = 15500; % Couple Frame: 15500
+baseNum = 14500; % Couple Frame: 15500
 seqLength = 23353;
 
 se = strel('disk',3);
@@ -87,7 +87,6 @@ nFrameROI = nTotalFrames;  % 23354 Frames used to compute background image
 
 for i = 0 : stepRoi : nFrameROI
 
-
     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+i));
     
@@ -147,20 +146,33 @@ for i = 0 : stepRoi : nFrameROI
                     'Color', 'red','LineStyle','-');
                 plot(femaleTrail(var, 1),femaleTrail(var, 2),'*', ...
                     'Color', 'blue','LineStyle','-');
+                
+                % ------------- Male/Female Position ------------- %
+                
                 disp('Male Position: ');
                 disp(maleTrail(var, 1));
+                disp('Female Position: ');
+                disp(femaleTrail(var, 2));
+                
                 D = pdist2(femaleTrail(var, 1), maleTrail(var, 2));
                 disp('Pairwise Distance: ');
                 disp(D);
-                if (D < 100)
-                    disp('TOUCH');
+                
+                couplingDistance = D < 5;
+                couplingTime = 1200 / i < 1;
+                isCoupling = couplingDistance && couplingTime;
+                
+                if (D < 10)
+                    disp('Action: TOUCH');
                     % Count how much time in touch
                     % if n time in touch = couple
                     Seconds = second(t);
-                    disp('======= Seconds: ');
+                    disp('Touch Seconds: ');
                     disp(Seconds);
-                    if (Seconds > 300)
-                        disp('-----------> COUPLE <------------');
+                    if (isCoupling)
+                        disp('Action: COUPLE');
+                        disp('Couple Seconds: ');
+                        disp(Seconds);
                     end
                 end
             end
