@@ -9,36 +9,21 @@ clear all, close all
 % 4) Que key-frames sao estasasd?
 %
 
+% -------------------- Backgroud -------------------- %
+
 imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
 
 thr = 29; % Optimal Tested Value: 29
-minArea = 7; % Optimal Tested Value: 7
-%baseNum = 262; % Initial Frame: 262
-baseNum = 14500; % Couple Frame: 15500
-seqLength = 23353;
+minArea = 50; % Optimal Tested Value: 7
+alfa=0.10;
+baseBkg = 262 % Initial Frame: 262
 
-se = strel('disk',3);
-
-% Timer Functions %
-% t = timer;
-% t.StartFcn = @(~,thisEvent)disp([thisEvent.Type ' executed '...
-%     datestr(thisEvent.Data.time,'SS.FFF')]);
-% t.TimerFcn = @(~,thisEvent)disp([thisEvent.Type ' executed '...
-%      datestr(thisEvent.Data.time,'SS.FFF')]);
-% t.StopFcn = @(~,thisEvent)disp([thisEvent.Type ' executed '...
-%     datestr(thisEvent.Data.time,'SS.FFF')]);
-% t.Period = 5;
-% t.TasksToExecute = 3;
-% t.ExecutionMode = 'fixedRate';
-t = datetime('now');
-
-% -------------------- Backgroud -------------------- %
-nTotalFrames = 23353; %23354Frames
-nFrameBKG= 1000; % 23354 Frames used to compute background image
+nFrameBKG = 1000; % 23354 Frames used to compute background image
 step = 20;       % Faz display de step em step frames
 Bkg=zeros(size(imgbk));
-BkgLast=zeros(size(imgbk));
-alfa=0.25;
+
+% -------------------- END Backgroud -------------------- %
+
 touchFigure = figure(2);
 mainFigure = figure(1); 
 set(touchFigure, 'Position', [630, 170, 500, 500]);
@@ -47,6 +32,31 @@ hold on
 maleTrail = [];
 femaleTrail = [];
 
+% Normal Frames %
+%baseNum = 262; % Initial Frame: 262
+%nTotalFrames = 5000; % Total: 23354 Frames
+
+% Coupling Frames %
+baseNum = 15500; % Couple Frame: 15500
+nTotalFrames = 5000; % Total: 23354 Frames
+
+se = strel('disk',3);
+
+% -------------------- Timer -------------------- %
+
+t = timer;
+%t.StartFcn = @(~,thisEvent)disp([...
+%    datestr(thisEvent.Data.time,'SS.FFF')]);
+t.TimerFcn = @(~,thisEvent)disp([...
+     datestr(thisEvent.Data.time,'SS.FFF')]);
+%t.StopFcn = @(~,thisEvent)disp([...
+%    datestr(thisEvent.Data.time,'SS.FFF')]);
+t.Period = 1;
+t.TasksToExecute = 1;
+t.ExecutionMode = 'fixedRate';
+%t = datetime('now');
+
+% -------------------- END Timer -------------------- %
 
         
 %Exprimentar varios valores para ALPHA
@@ -54,12 +64,11 @@ femaleTrail = [];
 for i = 0 : step : nFrameBKG
     %sprintf('BKG %d',i)
     imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
-                   baseNum+i));
+                   baseNum + i));
     Y = imgfr;
     Bkg = alfa * double(Y) + (1 - alfa) * double(Bkg);
     
     imgUInt8 = uint8(Bkg);
-    imgUInt8Last = uint8(BkgLast);
     %imshow(imgUInt8); drawnow
     %imshow(imgUInt8Last); drawnow
 %     if i == 500
@@ -88,7 +97,7 @@ nFrameROI = nTotalFrames;  % 23354 Frames used to compute background image
 for i = 0 : stepRoi : nFrameROI
 
     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
-                      baseNum+i));
+                      baseNum + i));
     
     sprintf('ROI %d',i);
     hold off
@@ -155,24 +164,22 @@ for i = 0 : stepRoi : nFrameROI
                 disp(femaleTrail(var, 2));
                 
                 D = pdist2(femaleTrail(var, 1), maleTrail(var, 2));
-                disp('Pairwise Distance: ');
+                disp('Male/Female Distance: ');
                 disp(D);
+                
+                touchDistance = D < 10;
                 
                 couplingDistance = D < 5;
                 couplingTime = 1200 / i < 1;
                 isCoupling = couplingDistance && couplingTime;
                 
-                if (D < 10)
+                if (touchDistance)
                     disp('Action: TOUCH');
-                    % Count how much time in touch
-                    % if n time in touch = couple
-                    Seconds = second(t);
                     disp('Touch Seconds: ');
-                    disp(Seconds);
+                    start(t)
                     if (isCoupling)
                         disp('Action: COUPLE');
                         disp('Couple Seconds: ');
-                        disp(Seconds);
                     end
                 end
             end
