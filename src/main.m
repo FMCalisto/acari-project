@@ -52,6 +52,16 @@ mainFigure = figure(1);
 
 % --------------------- END Figure --------------------- %
 
+% ---------------------- Message ----------------------- %
+
+stringTouchAction = 'Action: TOUCH';
+stringTouchSeconds = 'Touch Seconds: ';
+
+stringCoupleAction = 'Action: COUPLE';
+stringCoupleSeconds = 'Couple Seconds: ';
+
+% --------------------- END Message -------------------- %
+
 %set(touchFigure, 'Position', [630, 170, 500, 500]);
 set(mainFigure, 'Position', [100, 000, 500, 1000]);
 hold on
@@ -243,19 +253,18 @@ for i = 0 : stepRoi : nFrameROI
         %touchDistance = D < 10;
 
         couplingDistance = D < 5;
-        couplingTime = 1200 / i < 1;
+        couplingTime = 600 / i < 1;
         isCoupling = couplingDistance && couplingTime;
 
         sizeTouchDistArr = size(touchDistArr);
 
         if (touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
-            disp('Action: TOUCH');
-            touchTimer(timeNow, mainFigure);
-            % Change: touchTimer(timeNow, mainFigure, message)
-            %clf(mainFigure,'reset')
             if (isCoupling)
-                disp('Action: COUPLE');
-                disp('Couple Seconds: ');
+                timerAnnotation(timeNow, stringCoupleSeconds);
+                actionAnnotation(stringCoupleAction);
+            else
+                timerAnnotation(timeNow, stringTouchSeconds);
+                actionAnnotation(stringTouchAction);
             end
         end
         
@@ -288,6 +297,7 @@ for i = 0 : stepRoi : nFrameROI
 %     %clearpoints(h) %Limpar Points
 
     drawnow
+    clf(mainFigure, 'reset');
     
 end
 
@@ -299,14 +309,17 @@ end
 
 end
 
-function touchTimer(time, fig)
-    dim = [.2 .5 .9 .3];
-    stringTouchAction = 'Action: TOUCH';
-    stringTouchSeconds = 'Touch Seconds: ';
-    stringTouchSecondsLabel = strcat(stringTouchSeconds, ' ', time);
-    clf(fig,'reset')
-    annotation('textbox', dim, 'String', ...
-                        stringTouchSecondsLabel, 'FitBoxToText', 'on');
+function timerAnnotation(time, message)
+    dim1 = [.2 .5 .3 .3];
+    stringTouchSecondsLabel = strcat(message, ' ', time);
+    annotation('textbox', dim1, 'String', stringTouchSecondsLabel, ...
+                      'FitBoxToText', 'on');
+end
+
+function actionAnnotation(action)
+    dim2 = [.2 .6 .3 .3];
+    annotation('textbox', dim2, 'String', action, ...
+                      'FitBoxToText', 'on');
 end
 
 function touch(n,fig)
