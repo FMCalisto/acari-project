@@ -9,6 +9,25 @@ clear all, close all
 % 4) Que key-frames sao estasasd?
 %
 
+% -------------------- Timer -------------------- %
+
+t = timer;
+%t.StartFcn = @(~,thisEvent)disp([...
+%    datestr(thisEvent.Data.time,'SS.FFF')]);
+t.TimerFcn = @(~,thisEvent)disp([...
+     datestr(thisEvent.Data.time,'SS.FFF')]);
+%t.StopFcn = @(~,thisEvent)disp([...
+%    datestr(thisEvent.Data.time,'SS.FFF')]);
+t.Period = 1;
+t.TasksToExecute = 1;
+t.ExecutionMode = 'fixedRate';
+start(t)
+%t = datetime('now');
+
+timeNow = datestr(now);
+
+% -------------------- END Timer -------------------- %
+
 % -------------------- Backgroud -------------------- %
 
 imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
@@ -24,9 +43,21 @@ Bkg=zeros(size(imgbk));
 
 % -------------------- END Backgroud -------------------- %
 
-touchFigure = figure(2);
-mainFigure = figure(1); 
-set(touchFigure, 'Position', [630, 170, 500, 500]);
+% ----------------------- Figure ------------------------ %
+
+%touchFigure = figure(2);
+mainFigure = figure(1);
+dim = [.2 .5 .3 .3];
+stringTouchSeconds = 'Touch Seconds: ';
+stringTouchSecondsLabel = strcat(stringTouchSeconds, ' ', timeNow);
+stringTouchAction = 'Action: TOUCH';
+
+annotation('textbox', dim, 'String', ...
+                        stringTouchSeconds, 'FitBoxToText', 'on');
+
+% --------------------- END Figure --------------------- %
+
+%set(touchFigure, 'Position', [630, 170, 500, 500]);
 set(mainFigure, 'Position', [100, 000, 500, 1000]);
 hold on
 maleTrail = [];
@@ -41,22 +72,6 @@ baseNum = 15500; % Couple Frame: 15500
 nTotalFrames = 5000; % Total: 23354 Frames
 
 se = strel('disk',3);
-
-% -------------------- Timer -------------------- %
-
-t = timer;
-%t.StartFcn = @(~,thisEvent)disp([...
-%    datestr(thisEvent.Data.time,'SS.FFF')]);
-t.TimerFcn = @(~,thisEvent)disp([...
-     datestr(thisEvent.Data.time,'SS.FFF')]);
-%t.StopFcn = @(~,thisEvent)disp([...
-%    datestr(thisEvent.Data.time,'SS.FFF')]);
-t.Period = 1;
-t.TasksToExecute = 1;
-t.ExecutionMode = 'fixedRate';
-%t = datetime('now');
-
-% -------------------- END Timer -------------------- %
 
         
 %Exprimentar varios valores para ALPHA
@@ -175,8 +190,8 @@ for i = 0 : stepRoi : nFrameROI
                 
                 if (touchDistance)
                     disp('Action: TOUCH');
-                    disp('Touch Seconds: ');
-                    start(t)
+                    annotation('textbox', dim, 'String', ...
+                        stringTouchSecondsLabel, 'FitBoxToText', 'on');
                     if (isCoupling)
                         disp('Action: COUPLE');
                         disp('Couple Seconds: ');
