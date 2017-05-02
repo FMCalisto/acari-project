@@ -1,6 +1,6 @@
 clear all
 
-obj = mmreader('Proj1/video/experiencedmale7.avi');
+obj = mmreader('../videos/experiencedmale7.avi');
 nFrames = obj.NumberOfFrames;
 step = 19;%19
 
@@ -205,7 +205,7 @@ set(SummaryBox2,'String',str)
 set(SummaryBox2,'Position',[40,150,200,50])
 
 SummaryBox3 = uicontrol('style','text');
-str = {'Frames até a primeira copula : ',num2str(firstCopulaFrame)};
+str = {'Frames at? a primeira copula : ',num2str(firstCopulaFrame)};
 set(SummaryBox3,'String',str)
 set(SummaryBox3,'Position',[40,200,200,50])
 
