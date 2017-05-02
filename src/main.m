@@ -13,21 +13,6 @@ close all
 
 % -------------------- Timer -------------------- %
 
-t = timer;
-%t.StartFcn = @(~,thisEvent)disp([...
-%    datestr(thisEvent.Data.time,'SS.FFF')]);
-t.TimerFcn = @(~,thisEvent)disp([...
-     datestr(thisEvent.Data.time,'SS.FFF')]);
-%t.StopFcn = @(~,thisEvent)disp([...
-%    datestr(thisEvent.Data.time,'SS.FFF')]);
-t.Period = 1;
-t.TasksToExecute = 1;
-t.ExecutionMode = 'fixedRate';
-start(t)
-%t = datetime('now');
-
-timeNow = datestr(now, 'SS');
-
 % -------------------- END Timer -------------------- %
 
 % -------------------- Backgroud -------------------- %
@@ -260,10 +245,12 @@ for i = 0 : stepRoi : nFrameROI
 
         if (touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
             if (isCoupling)
-                timerAnnotation(timeNow, stringCoupleSeconds);
+                timeStartCoupling = num2str(frameToTime(i));
+                timerAnnotation(timeStartCoupling, stringCoupleSeconds);
                 actionAnnotation(stringCoupleAction);
             else
-                timerAnnotation(timeNow, stringTouchSeconds);
+                timeStartTouch = num2str(frameToTime(i));
+                timerAnnotation(timeStartTouch, stringTouchSeconds);
                 actionAnnotation(stringTouchAction);
             end
         end
@@ -320,6 +307,11 @@ function actionAnnotation(action)
     dim2 = [.2 .6 .3 .3];
     annotation('textbox', dim2, 'String', action, ...
                       'FitBoxToText', 'on');
+end
+
+function actualTime = frameToTime(nFrame)
+    frameTime = 788 / 7885;
+    actualTime = (nFrame) * frameTime;
 end
 
 function touch(n,fig)
