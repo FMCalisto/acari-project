@@ -47,6 +47,9 @@ stringCoupleSeconds = 'Couple Seconds: ';
 
 % --------------------- END Message -------------------- %
 
+frameFirstCouple = 0;
+count = 0;
+
 %set(touchFigure, 'Position', [630, 170, 500, 500]);
 set(mainFigure, 'Position', [100, 000, 500, 1000]);
 hold on
@@ -245,7 +248,11 @@ for i = 0 : stepRoi : nFrameROI
 
         if (touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
             if (isCoupling)
-                timeStartCoupling = num2str(frameToTime(i));
+                while(count == 0)
+                    frameFirstCouple = i;
+                    count = 1;
+                end
+                timeStartCoupling = num2str(frameToTime(i - frameFirstCouple));
                 timerAnnotation(timeStartCoupling, stringCoupleSeconds);
                 actionAnnotation(stringCoupleAction);
             else
