@@ -45,6 +45,9 @@ stringTouchSeconds = 'Touch Seconds: ';
 stringCoupleAction = 'Action: COUPLE';
 stringCoupleSeconds = 'Couple Seconds: ';
 
+stringTotalLengthMale = 0;
+stringTotalLengthFemale = 0;
+
 % --------------------- END Message -------------------- %
 
 frameFirstCouple = 0;
