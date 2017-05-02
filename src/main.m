@@ -1,5 +1,7 @@
 function main
-clear all, close all
+clear
+clc
+close all
 
 % PERGUNTAS
 %
@@ -24,7 +26,7 @@ t.ExecutionMode = 'fixedRate';
 start(t)
 %t = datetime('now');
 
-timeNow = datestr(now);
+timeNow = datestr(now, 'SS');
 
 % -------------------- END Timer -------------------- %
 
@@ -47,13 +49,6 @@ Bkg=zeros(size(imgbk));
 
 %touchFigure = figure(2);
 mainFigure = figure(1);
-dim = [.2 .5 .3 .3];
-stringTouchSeconds = 'Touch Seconds: ';
-stringTouchSecondsLabel = strcat(stringTouchSeconds, ' ', timeNow);
-stringTouchAction = 'Action: TOUCH';
-
-annotation('textbox', dim, 'String', ...
-                        stringTouchSeconds, 'FitBoxToText', 'on');
 
 % --------------------- END Figure --------------------- %
 
@@ -62,6 +57,7 @@ set(mainFigure, 'Position', [100, 000, 500, 1000]);
 hold on
 maleTrail = [];
 femaleTrail = [];
+touchDistArr = [];
 
 % Normal Frames %
 %baseNum = 262; % Initial Frame: 262
@@ -165,41 +161,17 @@ for i = 0 : stepRoi : nFrameROI
                 plot(femaleTrail(:,1),femaleTrail(:,2),'*','Color', ...
                     'blue','LineStyle','-');
             else
-                var = k;
+                var = k; % Var is the localization where we start using
+                         % things.
                 plot(maleTrail(var, 1),maleTrail(var, 2),'*', ...
                     'Color', 'red','LineStyle','-');
                 plot(femaleTrail(var, 1),femaleTrail(var, 2),'*', ...
-                    'Color', 'blue','LineStyle','-');
+                    'Color', 'blue','LineStyle','-');         
                 
-                % ------------- Male/Female Position ------------- %
-                
-                disp('Male Position: ');
-                disp(maleTrail(var, 1));
-                disp('Female Position: ');
-                disp(femaleTrail(var, 2));
-                
-                D = pdist2(femaleTrail(var, 1), maleTrail(var, 2));
-                disp('Male/Female Distance: ');
-                disp(D);
-                
-                touchDistance = D < 10;
-                
-                couplingDistance = D < 5;
-                couplingTime = 1200 / i < 1;
-                isCoupling = couplingDistance && couplingTime;
-                
-                if (touchDistance)
-                    disp('Action: TOUCH');
-                    annotation('textbox', dim, 'String', ...
-                        stringTouchSecondsLabel, 'FitBoxToText', 'on');
-                    if (isCoupling)
-                        disp('Action: COUPLE');
-                        disp('Couple Seconds: ');
-                    end
-                end
             end
         end
     end
+    
     trailNorm = norm(femaleTrail - maleTrail);
     %D = pdist2(femaleTrail(:, 1), maleTrail(:, 2));
     %disp('Pairwise Distance: ');
@@ -249,6 +221,44 @@ for i = 0 : stepRoi : nFrameROI
             
         end
         
+        % ------------- Male/Female Position ------------- %
+                
+%         disp('Male Position: ');
+%         disp(maleTrail(sizeTrail, 1));
+%         disp('Female Position: ');
+%         disp(femaleTrail(sizeTrail, 2));
+        sizeMaleTrail = size(maleTrail);
+        DX = [femaleTrail(sizeMaleTrail(1,1), 1), ...
+              femaleTrail(sizeMaleTrail(1,1), 2); ...
+              maleTrail(sizeMaleTrail(1,1), 1), ...
+              maleTrail(sizeMaleTrail(1,1), 2)];
+        D = pdist(DX, 'euclidean');
+        disp('Male/Female Distance: ');
+        disp(D);
+
+        touchDistArr = [touchDistArr; D];
+
+        disp(touchDistArr)
+
+        %touchDistance = D < 10;
+
+        couplingDistance = D < 5;
+        couplingTime = 1200 / i < 1;
+        isCoupling = couplingDistance && couplingTime;
+
+        sizeTouchDistArr = size(touchDistArr);
+
+        if (touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
+            disp('Action: TOUCH');
+            touchTimer(timeNow, mainFigure);
+            % Change: touchTimer(timeNow, mainFigure, message)
+            %clf(mainFigure,'reset')
+            if (isCoupling)
+                disp('Action: COUPLE');
+                disp('Couple Seconds: ');
+            end
+        end
+        
     end
     
         % --------------------------------------------------- %
@@ -287,6 +297,16 @@ end
 %                                                     % 
 % --------------------------------------------------- %
 
+end
+
+function touchTimer(time, fig)
+    dim = [.2 .5 .9 .3];
+    stringTouchAction = 'Action: TOUCH';
+    stringTouchSeconds = 'Touch Seconds: ';
+    stringTouchSecondsLabel = strcat(stringTouchSeconds, ' ', time);
+    clf(fig,'reset')
+    annotation('textbox', dim, 'String', ...
+                        stringTouchSecondsLabel, 'FitBoxToText', 'on');
 end
 
 function touch(n,fig)
