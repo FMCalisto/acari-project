@@ -73,13 +73,13 @@ nTotalFrames = 7885; % Total: 7885 Frames
 
 % ----------------- Backgroud ------------------ %
 
-thr = 29; % Optimal Tested Value: 29
-minArea = 10; % Optimal Tested Value: 7
-maxArea = 50; % Optimal Tested Value: ?
-alfa=0.10;  %Exprimentar varios valores para ALPHA
+thr = 31; % Optimal Tested Value: 31
+minArea = 10; % Optimal Tested Value: 10
+maxArea = 50; % Optimal Tested Value: 50
+alfa = 0.10;  %Exprimentar varios valores para ALPHA
 
 nFrameBKG = 1000; % 23354 Frames used to compute background image
-step = 20;       % Faz display de step em step frames
+step = 10;       % Faz display de step em step frames
 Bkg=zeros(size(imgbk));
 
 % -------------------- END Backgroud -------------------- %
@@ -159,7 +159,7 @@ imgBkgBase = imgUInt8; % Imagem de background
 % Remove object intersection
 % Faz as caixinhas
 
-stepRoi = 20;
+stepRoi = 15;
 nFrameROI = nTotalFrames;  % 23354 Frames used to compute background image
 
 for i = 0 : stepRoi : nFrameROI
@@ -435,7 +435,7 @@ end
 % title('Resumo de informacoes do Video:')
 % axes(ax1) % sets ax1 to current axes
 % 
-% texts = {'Distancia percorrida macho'; 'Distancia percorridafemea ';'Num de toques';'Num de copulas';'Frame e tempo do 1Âº toque';'Frame e tempo do 1? copula'};
+% texts = {'Distancia percorrida macho'; 'Distancia percorridafemea ';'Num de toques';'Num de copulas';'Frame e tempo do 1???? toque';'Frame e tempo do 1? copula'};
 % vars = {num2str(sumMaleTotalTrail); num2str(sumFemTotalTrail); numTouch; numCopula; frameFirstTouch; frameFirstCopula;};
 % names = strcat(texts, {': '}, vars);
 % 
