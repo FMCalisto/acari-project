@@ -32,7 +32,7 @@ Bkg=zeros(size(imgbk));
 
 % ----------------------- Figure ------------------------ %
 
-%touchFigure = figure(2);
+touchFigure = figure(2);
 mainFigure = figure(1);
 
 % --------------------- END Figure --------------------- %
@@ -53,12 +53,15 @@ stringTotalLengthFemale = 0;
 frameFirstCouple = 0;
 count = 0;
 
-%set(touchFigure, 'Position', [630, 170, 500, 500]);
+set(touchFigure, 'Position', [630, 170, 500, 500]);
 set(mainFigure, 'Position', [100, 000, 500, 1000]);
 hold on
 maleTrail = [];
 femaleTrail = [];
 touchDistArr = [];
+
+sumFemTotalTrail = 0;
+sumMaleTotalTrail = 0;
 
 % Normal Frames %
 %baseNum = 262; % Initial Frame: 262
@@ -66,7 +69,7 @@ touchDistArr = [];
 
 % Coupling Frames %
 baseNum = 15500; % Couple Frame: 15500
-nTotalFrames = 5000; % Total: 23354 Frames
+nTotalFrames = 1000; % Total: 23354 Frames
 
 se = strel('disk',3);
 
@@ -83,10 +86,10 @@ for i = 0 : step : nFrameBKG
     imgUInt8 = uint8(Bkg);
     %imshow(imgUInt8); drawnow
     %imshow(imgUInt8Last); drawnow
-%     if i == 500
-%         touch(500,touchFigure);   %%%%%  TOUCH  %%%%%
-%         figure(mainFigure);
-%     end
+    if i == 500
+        touch(500,touchFigure);   %%%%%  TOUCH  %%%%%
+        figure(mainFigure);
+    end
 %     if i == 360
 %         sex(350,360, touchFigure);
 %         figure(mainFigure);   %%%%%  SEX  %%%%%
@@ -233,9 +236,34 @@ for i = 0 : stepRoi : nFrameROI
               femaleTrail(sizeMaleTrail(1,1), 2); ...
               maleTrail(sizeMaleTrail(1,1), 1), ...
               maleTrail(sizeMaleTrail(1,1), 2)];
+          
+          
+        if (sizeMaleTrail > 1)
+            femaleTotalTrail = [femaleTrail(sizeMaleTrail(1,1) - 1, 1), ...
+              femaleTrail(sizeMaleTrail(1,1) - 1, 2); ...
+              femaleTrail(sizeMaleTrail(1,1), 1), ...
+              femaleTrail(sizeMaleTrail(1,1), 2)];
+          maleTotalTrail = [maleTrail(sizeMaleTrail(1,1) - 1, 1), ...
+              maleTrail(sizeMaleTrail(1,1) - 1, 2); ...
+              maleTrail(sizeMaleTrail(1,1), 1), ...
+              maleTrail(sizeMaleTrail(1,1), 2)];
+          
+          pdistFTT = pdist(femaleTotalTrail, 'euclidean');          
+          sumFemTotalTrail = sumFemTotalTrail + pdistFTT;
+          pdistMTT = pdist(maleTotalTrail, 'euclidean');          
+          sumMaleTotalTrail = sumMaleTotalTrail + pdistMTT;
+        end 
+          
+          
+          
+          
+          
         D = pdist(DX, 'euclidean');
         disp('Male/Female Distance: ');
         disp(D);
+        
+        disp('-----------> Female Total Distance: ');
+        disp(sumFemTotalTrail);
 
         touchDistArr = [touchDistArr; D];
 
@@ -248,6 +276,8 @@ for i = 0 : stepRoi : nFrameROI
         isCoupling = couplingDistance && couplingTime;
 
         sizeTouchDistArr = size(touchDistArr);
+        
+        hold on
 
         if (touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
             if (isCoupling)
@@ -264,6 +294,8 @@ for i = 0 : stepRoi : nFrameROI
                 actionAnnotation(stringTouchAction);
             end
         end
+        
+        hold off
         
     end
     
@@ -294,7 +326,8 @@ for i = 0 : stepRoi : nFrameROI
 %     %clearpoints(h) %Limpar Points
 
     drawnow
-    clf(mainFigure, 'reset');
+    %clf(mainFigure, 'reset');
+    hold off
     
 end
 
@@ -303,6 +336,34 @@ end
 %                    Touch                            % 
 %                                                     % 
 % --------------------------------------------------- %
+
+% Create the figure
+mFigure = figure('Name','Output Data')
+
+
+ax1 = axes('Position',[0 0 1 1],'Visible','off');
+ax2 = axes('Position',[.3 .1 .6 .8]);
+
+t = 0:1000;
+y = 0.25*exp(-0.005*t);
+plot(ax2,t,y)
+
+title('Resumo de informacoes do Video:')
+descr = {'Distancia percorrida'
+    'macho:' + sumMaleTotalTrail;
+    'Distancia percorrida'
+    'femea: ' + sumFemTotalTrail;
+    ' ';
+    'N? de toques';
+    'N? de copulas';
+    'Frame e '
+    'tempo do 1? toque'
+    'Frame e '
+    'tempo do 1? copula';
+    };
+
+axes(ax1) % sets ax1 to current axes
+text(.025,0.6,descr)
 
 end
 
