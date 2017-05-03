@@ -425,6 +425,7 @@ function sex(m,l,fig)
     imshow(imageAuxB); title(strSexB);
     hold on
 % insert after sex image on figure
+
     subplot(2,2,3);
     strSexA = sprintf('After Sex: %d',l);title(strSexA);    
     sexImageA = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
