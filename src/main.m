@@ -9,45 +9,73 @@ close all
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-obj = VideoReader('../videos/SonofMated10.avi');
-
-disp('info');
-info = get(obj);
-disp(info);
-
-disp('imagebackground ');
-imagebackground = read(obj,1);
-teste = figure(100);
-imshow(imagebackground);
-
-nFrames = obj.FrameRate;
-str = sprintf('nFrames: %d',round(nFrames));
-disp(str);
-disp('CurrentTime');
-CurrentTime = obj.CurrentTime;
-disp(CurrentTime);
- 
-disp('Duration');
-Duration = obj.Duration;
-disp(Duration);
-
-disp('Height');
-Height = obj.Height;
-disp(Height);
+% obj = VideoReader('../videos/SonofMated10.avi');
+% 
+% disp('info');
+% info = get(obj);
+% disp(info);
+% 
+% disp('imagebackground ');
+% imagebackground = read(obj,1);
+% teste = figure(100);
+% imshow(imagebackground);
+% 
+% nFrames = obj.FrameRate;
+% str = sprintf('nFrames: %d',round(nFrames));
+% disp(str);
+% disp('CurrentTime');
+% CurrentTime = obj.CurrentTime;
+% disp(CurrentTime);
+%  
+% disp('Duration');
+% Duration = obj.Duration;
+% disp(Duration);
+% 
+% disp('Height');
+% Height = obj.Height;
+% disp(Height);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% -------------------- Timer -------------------- %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%        EXAMPLE 1: Normal Frames                %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% -------------------- END Timer -------------------- %
+%imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
+%baseBkg = 262; % Initial Frame: 262
+%baseNum = 262; % Initial Frame: 262
+%nTotalFrames = 5000; % Total: 23354 Frames
 
-% -------------------- Backgroud -------------------- %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%        EXAMPLE 2: Coupling Frames              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
+%imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
+%baseBkg = 262; % Initial Frame: 262
+%baseNum = 15500; % Couple Frame: 15500
+%nTotalFrames = 5000; % Total: 23354 Frames
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%        EXAMPLE 3: New Frames                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+imgbk = imread('../newframes/frame0000.jpg');
+baseBkg = 0; % Initial Frame: 0
+baseNum = 0;
+nTotalFrames = 7885; % Total: 7885 Frames
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ------------------- Timer -------------------- %
+
+% ----------------- END Timer ------------------ %
+
+% ----------------- Backgroud ------------------ %
 
 thr = 29; % Optimal Tested Value: 29
 minArea = 50; % Optimal Tested Value: 7
 alfa=0.10;  %Exprimentar varios valores para ALPHA
-baseBkg = 262 % Initial Frame: 262
 
 nFrameBKG = 1000; % 23354 Frames used to compute background image
 step = 20;       % Faz display de step em step frames
@@ -78,7 +106,7 @@ stringTotalLengthFemale = 0;
 frameFirstCouple = 0;
 count = 0;
 
-%set(touchFigure, 'Position', [630, 170, 500, 500]);
+set(touchFigure, 'Position', [630, 170, 500, 500]);
 set(mainFigure, 'Position', [100, 000, 500, 1000]);
 hold on
 maleTrail = [];
@@ -92,19 +120,28 @@ isTouching = false;
 isTouchingNow = false;
 isCouplingNow = false;
 
-% Normal Frames %
-%baseNum = 262; % Initial Frame: 262
-%nTotalFrames = 5000; % Total: 23354 Frames
-
-% Coupling Frames %
-baseNum = 15500; % Couple Frame: 15500
-nTotalFrames = 5000; % Total: 23354 Frames
-
 se = strel('disk',3);
 
 for i = 0 : step : nFrameBKG
-    imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
-                   baseNum + i));
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %        EXAMPLE 1 & 2                           %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%     imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+%                    baseNum + i));
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %        EXAMPLE 3: New Frames                   %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    imgfr = imread(sprintf('../newframes/frame%.4d.jpg', ...
+                    baseNum + i));
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     Y = imgfr;
     Bkg = alfa * double(Y) + (1 - alfa) * double(Bkg);
     
@@ -126,8 +163,23 @@ nFrameROI = nTotalFrames;  % 23354 Frames used to compute background image
 
 for i = 0 : stepRoi : nFrameROI
 
-    imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
-                      baseNum + i));
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %        EXAMPLE 1 & 2                           %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+%                    baseNum + i));
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %        EXAMPLE 3: New Frames                   %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    imgfrNew = imread(sprintf('../newframes/frame%.4d.jpg', ...
+                    baseNum + i));
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     sprintf('ROI %d',i);
     hold off
@@ -392,8 +444,23 @@ function touch(n,fig, numKeyFrames)
 % insert touch image on figure
     subplot(3, 3, numKeyFrames);
     str = sprintf('Touch: %d',n); title(str);
-    touchImageT = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
-                      baseNum+n));
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %        EXAMPLE 1 & 2                           %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%     touchImageT = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+%                    baseNum + i));
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %        EXAMPLE 3: New Frames                   %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    touchImageT = imread(sprintf('../newframes/frame%.4d.jpg', ...
+                    baseNum + i));
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     imageAux = imresize(touchImageT, 0.4);
     imshow(imageAux); title(str);
     %touch=n;
@@ -420,8 +487,23 @@ function sex(m, message, fig, numKeyFrames)
 % insert  sex image on figure
     subplot(3, 3, numKeyFrames);
     strSexB = sprintf(message, ': %d', m);title(strSexB);    
-    sexImageB = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
-                      baseNum+m));
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %        EXAMPLE 1 & 2                           %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%     sexImageB = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+%                    baseNum + m));
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %        EXAMPLE 3: New Frames                   %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    sexImageB = imread(sprintf('../newframes/frame%.4d.jpg', ...
+                    baseNum + m));
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     imageAuxB = imresize(sexImageB, 0.4);
     imshow(imageAuxB); title(strSexB);
     hold on
