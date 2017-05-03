@@ -421,6 +421,27 @@ end
 %                    Touch                            % 
 %                                                     % 
 % --------------------------------------------------- %
+% % Create the figure
+% mFigure = figure('Name','Output Data')
+% 
+% 
+%  ax1 = axes('Position',[0 0 1 1],'Visible','off');
+% % ax2 = axes('Position',[.3 .1 .6 .8]);
+% 
+% % t = 0:1000;
+% % y = 0.25*exp(-0.005*t);
+% % plot(ax2,t,y)
+% 
+% title('Resumo de informacoes do Video:')
+% axes(ax1) % sets ax1 to current axes
+% 
+% texts = {'Distancia percorrida macho'; 'Distancia percorridafemea ';'Num de toques';'Num de copulas';'Frame e tempo do 1Âº toque';'Frame e tempo do 1? copula'};
+% vars = {num2str(sumMaleTotalTrail); num2str(sumFemTotalTrail); numTouch; numCopula; frameFirstTouch; frameFirstCopula;};
+% names = strcat(texts, {': '}, vars);
+% 
+% 
+% 
+% text(.025,0.6,names)
 
 end
 
