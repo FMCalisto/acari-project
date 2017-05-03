@@ -13,6 +13,8 @@ close all
 
 % -------------------- Timer -------------------- %
 
+timerCopula = 0;
+
 % -------------------- END Timer -------------------- %
 
 % -------------------- Backgroud -------------------- %
@@ -35,6 +37,12 @@ Bkg=zeros(size(imgbk));
 touchFigure = figure(2);
 mainFigure = figure(1);
 
+%set(touchBox, 'String', 'NO TOUCH')
+%set(touchBox, 'Position', [40,10,100,25])
+set(touchFigure, 'Position', [630, 170, 500, 500]);
+set(mainFigure, 'Position', [100, 000, 500, 1000]);
+hold on
+
 % --------------------- END Figure --------------------- %
 
 % ---------------------- Message ----------------------- %
@@ -48,25 +56,31 @@ stringCoupleSeconds = 'Couple Seconds: ';
 stringTotalLengthMale = 0;
 stringTotalLengthFemale = 0;
 
+stringMaleDistance = 'Male Distance: ';
+stringFemaleDistance = 'Female Distance: ';
+
 % --------------------- END Message -------------------- %
 
+frameFirstCoupla = 0;
+countTouch = 0;
+countCoupla = 0;
+counterAux = 0;
+counterAuxCopula = 1;
 
-count = 0;
+%maleIndex = 0;
+%femaleIndex = 0;
 
-set(touchFigure, 'Position', [630, 170, 500, 500]);
-set(mainFigure, 'Position', [100, 000, 500, 1000]);
-hold on
+firstTouch = 1;
+
 maleTrail = [];
 femaleTrail = [];
 touchDistArr = [];
+allPosCopula =[];
+distMaleFemale = [];
 
-sumFemTotalTrail = 0;
-sumMaleTotalTrail = 0;
-numTouch = 0;
-numCopula = 0;
-frameFirstCopula = 0;
-frameFirstTouch = 0;
-
+maleDistance = 0;
+femaleDistance = 0;
+distEuclidean = 0;
 
 % Normal Frames %
 %baseNum = 262; % Initial Frame: 262
@@ -74,31 +88,20 @@ frameFirstTouch = 0;
 
 % Coupling Frames %
 baseNum = 15500; % Couple Frame: 15500
-nTotalFrames = 500; % Total: 23354 Frames
+nTotalFrames = 5000; % Total: 23354 Frames
 
 se = strel('disk',3);
 
         
-%Exprimentar varios valores para ALPHA
+% Try to fix the alfa values...
 
 for i = 0 : step : nFrameBKG
-    %sprintf('BKG %d',i)
     imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                    baseNum + i));
     Y = imgfr;
     Bkg = alfa * double(Y) + (1 - alfa) * double(Bkg);
     
     imgUInt8 = uint8(Bkg);
-    %imshow(imgUInt8); drawnow
-    %imshow(imgUInt8Last); drawnow
-    if i == 500
-        touch(500,touchFigure);   %%%%%  TOUCH  %%%%%
-        figure(mainFigure);
-    end
-    if i == 360
-        sex(350,360, touchFigure);
-        figure(mainFigure);   %%%%%  SEX  %%%%%
-    end
 end
 
 % ------------------ END Backgroud ------------------ %
@@ -119,7 +122,7 @@ for i = 0 : stepRoi : nFrameROI
     imgfrNew = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum + i));
     
-    sprintf('ROI %d',i);
+    sprintf('ROI %d', i);
     hold off
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %                            %
@@ -137,208 +140,132 @@ for i = 0 : stepRoi : nFrameROI
     hold on
     % --------------------------------------------------- %
     
-    %compare frame with background image
-    %imgBkgBaseResize = imresize(imgBkgBase, 1);%resize back ground image
+    % Compare frame with background image:
     imgdif = (abs(double(imgBkgBase(:,:,1))-double(imgfrNew(:,:,1)))>thr) | ...
         (abs(double(imgBkgBase(:,:,2))-double(imgfrNew(:,:,2)))>thr) | ...
         (abs(double(imgBkgBase(:,:,3))-double(imgfrNew(:,:,3)))>thr);
     
     
-    bw = imclose(imgdif,se);
-    str = sprintf('Frame: %d',i); title(str);
-    % ----------------------------------------------------------- %
-    %%%%%%%%imshow(bw);  %%Mete Background preto ao mesmo tempo
-    % ----------------------------------------------------------- %
+    bw = imclose(imgdif, se);
+    str = sprintf('Frame: %d', i); title(str);
+    
     [lb num]=bwlabel(bw);
-    regionProps = regionprops(lb,'area','FilledImage','Centroid');
-    inds = find([regionProps.Area]>minArea);
+    regionProps = regionprops(lb, 'area', 'FilledImage', 'Centroid');
+    inds = find([regionProps.Area] > minArea);
     
     regnum = length(inds);
-    %%%%%%%%%%inds number explained
-    %if regnum = 1 ha' 1 regiao, logo acasalamento
-    %inds(1) - acaro1 e acaro2
-    %if regnum = 2 ha' 2 regioes
-    %inds(1) - acaro1
-    %inds(2) - acaro2
-    sizeTrail = size(maleTrail);
-    for k = sizeTrail-20 : 1 : sizeTrail
-        sizeTrail = sizeTrail(1,1);
-        if i > 0
-            if (sizeTrail < 21)
-                plot(maleTrail(:,1),maleTrail(:,2),'*','Color', ...
-                    'red', 'LineStyle','-');
-                plot(femaleTrail(:,1),femaleTrail(:,2),'*','Color', ...
-                    'blue','LineStyle','-');
-            else
-                var = k; % Var is the localization where we start using
-                         % things.
-                plot(maleTrail(var, 1),maleTrail(var, 2),'*', ...
-                    'Color', 'red','LineStyle','-');
-                plot(femaleTrail(var, 1),femaleTrail(var, 2),'*', ...
-                    'Color', 'blue','LineStyle','-');         
-                
-            end
-        end
-    end
     
-    trailNorm = norm(femaleTrail - maleTrail);
-    %D = pdist2(femaleTrail(:, 1), maleTrail(:, 2));
-    %disp('Pairwise Distance: ');
-    %disp(D);
-%     disp('Male Position: ');
-%     disp(maleTrail(:, 1));
-%     disp('regnum');
-%     disp(regnum);
-    if regnum
-        regionProps(inds(1),1).Area
-        
-        %existem as 2 regioes
-        
-        if ( regnum > 1 )
-            acariA = regionProps(inds(1));
-            acariB = regionProps(inds(2));
-%             disp(acariA.Centroid);
-%             disp(acariB);
-            if (acariA.Area) > (acariB.Area)  %se A > B, A e' femea
-                femaleTrail = [femaleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
-                maleTrail = [maleTrail;[acariB.Centroid(1,1) acariB.Centroid(1,2)]];
-            else  %se A <= B, A e' macho
-                maleTrail = [maleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
-                femaleTrail = [femaleTrail;[acariB.Centroid(1,1) acariB.Centroid(1,2)]];
-            end    
+    if (regnum > 1)
+        regionPropsArr1 = [regionProps(inds(1), 1).Area];
+        regionPropsArr2 = [regionProps(inds(2), 1).Area];
+        if (regionPropsArr1 < regionPropsArr2)
+            maleIndex = 1;
+            areaMale = regionPropsArr1;
+            femaleIndex = 2;
+            areaFemale = regionPropsArr2;
         else
-            %existem 1 regiao
-            if (regnum > 0)
-                acariA = regionProps(inds(1));
-                femaleTrail = [femaleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
-                maleTrail = [maleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
-            end
-        %caso nao existao 2 regioes nao adiciona nada    
+            maleIndex = 2;
+            areaMale = regionPropsArr2;
+            femaleIndex = 1;
+            areaFemale = regionPropsArr1;
         end
-        for j=1:regnum
-            [lin col]= find(lb == inds(j));
-            upLPoint = min([lin col]);
-            dWindow  = max([lin col]) - upLPoint + 1;
+        
+        xFemale = regionProps(inds(femaleIndex), 1).Centroid(1);
+        yFemale = regionProps(inds(femaleIndex), 1).Centroid(2);
+        xMale = regionProps(inds(maleIndex), 1).Centroid(1);
+        yMale = regionProps(inds(maleIndex), 1).Centroid(2);
 
-            rectangle('Position', ...
-                      [fliplr(upLPoint) fliplr(dWindow)], ...
-                      'EdgeColor',[1 1 0], ...
-                      'linewidth',2);
+        centroidMale = regionProps(inds(maleIndex), 1).Centroid;
+        centroidFemale = regionProps(inds(femaleIndex), 1).Centroid;
+        centroidCopola = regionProps(inds(1), 1).Centroid;
+        centroidMaleArr = [centroidMale];
+        centroidFemaleArr = [centroidFemale];
+        centroidCopulaArr = [centroidCopola];
+
+        plusPos = sqrt((xFemale-xMale).^2) + ((yFemale-yMale).^2);
+        distMaleFemale = [distMaleFemale; plusPos];
+        
+        maleTrail = [maleTrail; centroidMaleArr];
+        femaleTrail = [femaleTrail; centroidFemaleArr];
+        
+        if i > i
+            plot(maleTrail(counterAux, 1), ...
+                 maleTrail(counterAux, 2), ...
+                 '*', 'Color', 'red', 'LineStyle', '-');
+            plot(femaleTrail(counterAux, 1), ...
+                 femaleTrail(counterAux, 2), ...
+                 '*', 'Color', 'blue', 'LineStyle', '-');
+        end
+        counterAux = counterAux + 1;
+    else
+        % TOUCH DETECTION %
+        % If the number of active regions is 1
+        allPosCopula = [allPosCopula; centroidCopulaArr];
+        touchDistArr = [touchDistArr; i];
+        distMaleFemale = [distMaleFemale; 0];
+        
+        if (firstTouch)
+            countTouch = countTouch + 1;
+            firstTouch = false;
+        end
+        
+        if (countTouch > 1)
+            frameFirstCopula = i;
+            timerCopula = timerCopula + 1;
+        end
+        
+        if i > 1
+            plot(allPosCopula(counterAuxCopula, 1), ...
+                 allPosCopula(counterAuxCopula, 2), ...
+                 '*', 'Color', 'magenta', 'LineStyle', '-');
+        end
+        
+        if regnum
+            for j=1:regnum
+                [lin col]= find(lb == inds(j));
+                upLPoint = min([lin col]);
+                dWindow  = max([lin col]) - upLPoint + 1;
+
+                rectangle('Position', ...
+                          [fliplr(upLPoint) fliplr(dWindow)], ...
+                          'EdgeColor',[1 1 0], ...
+                          'linewidth',2);
 
 
-            drawnow
+                drawnow
+
+            end
+        end
+        
+        for i = 1 : size(maleTrail, 1)
+            plot(maleTrail(counterAux, 1), ...
+                 maleTrail(counterAux, 2), ...
+                 '*', 'Color', 'red', 'LineStyle', '-');
+        end
+        for i = 1 : size(femaleTrail, 1)
+            plot(femaleTrail(counterAux, 1), ...
+                 femaleTrail(counterAux, 2), ...
+                 '*', 'Color', 'blue', 'LineStyle', '-');
+        end    
+        for i = 1 : size(allPosCopula, 1)
+            plot(allPosCopula(counterAuxCopula, 1), ...
+                 allPosCopula(counterAuxCopula, 2), ...
+                 '*', 'Color', 'magenta', 'LineStyle', '-');
+        end
+        
+        subplot(2,1,2), plot(distMaleFemale), title('Distance between Male and Female Tetranychus'), xlabel('Frames (x19)'), ylabel('Distance (px)'),
+        subplot(2,1,1), drawnow
             
-        end
-        
-        % ------------- Male/Female Position ------------- %
-                
-%         disp('Male Position: ');
-%         disp(maleTrail(sizeTrail, 1));
-%         disp('Female Position: ');
-%         disp(femaleTrail(sizeTrail, 2));
-        sizeMaleTrail = size(maleTrail);
-        DX = [femaleTrail(sizeMaleTrail(1,1), 1), ...
-              femaleTrail(sizeMaleTrail(1,1), 2); ...
-              maleTrail(sizeMaleTrail(1,1), 1), ...
-              maleTrail(sizeMaleTrail(1,1), 2)];
-          
-          
-        if (sizeMaleTrail > 1)
-            femaleTotalTrail = [femaleTrail(sizeMaleTrail(1,1) - 1, 1), ...
-              femaleTrail(sizeMaleTrail(1,1) - 1, 2); ...
-              femaleTrail(sizeMaleTrail(1,1), 1), ...
-              femaleTrail(sizeMaleTrail(1,1), 2)];
-          maleTotalTrail = [maleTrail(sizeMaleTrail(1,1) - 1, 1), ...
-              maleTrail(sizeMaleTrail(1,1) - 1, 2); ...
-              maleTrail(sizeMaleTrail(1,1), 1), ...
-              maleTrail(sizeMaleTrail(1,1), 2)];
-          
-          pdistFTT = pdist(femaleTotalTrail, 'euclidean');          
-          sumFemTotalTrail = sumFemTotalTrail + pdistFTT;
-          pdistMTT = pdist(maleTotalTrail, 'euclidean');          
-          sumMaleTotalTrail = sumMaleTotalTrail + pdistMTT;
-        end 
-          
-          
-          
-          
-          
-        D = pdist(DX, 'euclidean');
-        disp('Male/Female Distance: ');
-        disp(D);
-        
-        disp('-----------> Female Total Distance: ');
-        disp(sumFemTotalTrail);
-
-        touchDistArr = [touchDistArr; D];
-
-        disp(touchDistArr)
-
-        %touchDistance = D < 10;
-
-        couplingDistance = D < 5;
-        couplingTime = 600 / i < 1;
-        isCoupling = couplingDistance && couplingTime;
-
-        sizeTouchDistArr = size(touchDistArr);
-        
-        hold on
-
-        if (touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
-            if (isCoupling)
-                while(count == 0)
-                    frameFirstCouple = i;
-                    count = 1;
-                end
-                timeStartCoupling = num2str(frameToTime(i - frameFirstCouple));
-                timerAnnotation(timeStartCoupling, stringCoupleSeconds);
-                actionAnnotation(stringCoupleAction);
-            else
-                timeStartTouch = num2str(frameToTime(i));
-                timerAnnotation(timeStartTouch, stringTouchSeconds);
-                actionAnnotation(stringTouchAction);
-            end
-        end
-        
-        hold off
-        
     end
-    
-        % --------------------------------------------------- %
-        %   Grafic    correr depois de criar distancia        % 
-        % --------------------------------------------------- %
-    
-%     warning off;
-% 
-%     h = animatedline('Marker','v','Color','red','LineStyle','-');
-%     axis([0,4*pi,-1,1])
-% 
-%     x = linspace(0,4*pi,1000);
-%     y = sin(x);
-% 
-%     title('Graph of Sine and Cosine Between -2\pi and 2\pi');
-%     xlabel('-2\pi < x < 2\pi'); % x-axis label
-%     ylabel('sine and cosine values'); % y-axis label
-%     legend('y = sin(x)','y = cos(x)','Location','southwest');
-% 
-%     %%get xdata is distanciaEntreAcaros and ydata is time to grafic
-%     %% [xdata,ydata] = getpoints(h);
-%      
-%     for p = 1:length(x)
-%         addpoints(h,x(p),y(p));
-%         drawnow
-%     end
-%     %clearpoints(h) %Limpar Points
 
     drawnow
-    %clf(mainFigure, 'reset');
-    hold off
+    clf(mainFigure, 'reset');
     
 end
 
 % --------------------------------------------------- %
 %                                                     % 
-%                    Touch                            % 
+%                 Output Data                         % 
 %                                                     % 
 % --------------------------------------------------- %
 
@@ -354,17 +281,83 @@ y = 0.25*exp(-0.005*t);
 plot(ax2,t,y)
 
 title('Resumo de informacoes do Video:')
-descr = {'Distancia percorrida macho:' , sumMaleTotalTrail;
-   'Distancia percorridafemea: ' , sumFemTotalTrail;
-    'N? de toques' , numTouch;
-    'N? de copulas' , numCopula;
-    'Frame e tempo do 1? toque' , frameFirstTouch;
-    'Frame e tempo do 1? copula' , frameFirstCopula;
-   };
-% a=10
-% descr = {'aaaa',a;'bb',12}
+descr = {'Distancia percorrida'
+    'macho:';
+    'Distancia percorrida'
+    'femea: ';
+    ' ';
+    'N? de toques';
+    'N? de copulas';
+    'Frame e '
+    'tempo do 1? toque'
+    'Frame e '
+    'tempo do 1? copula';
+    };
+
 axes(ax1) % sets ax1 to current axes
 text(.025,0.6,descr)
+
+% ------------------------------------------------------- %
+%    EUCLIDEAN DISTANCE CALCULATION FOR FEMALE vs MALE    %
+% ------------------------------------------------------- %
+
+allPosCopulaLenght = length(allPosCopula) - 1;
+femaleTrailLenght = length(femaleTrail) - 1;
+maleTrailLenght = length(maleTrail) - 1;
+
+for k = 1: allPosCopulaLenght
+    x1 = allPosCopula(k,1);
+    y1 = allPosCopula(k,2);
+    x2 = allPosCopula(k + 1,1);
+    y2 = allPosCopula(k + 1,2);
+    
+    dist = sqrt((x2-x1).^2) + ((y2-y1).^2);
+    copulaDistance = copulaDistance + dist;
+end
+
+for k = 1: femaleTrailLenght
+    x1 = femaleTrail(k,1);
+    y1 = femaleTrail(k,2);
+    x2 = femaleTrail(k + 1,1);
+    y2 = femaleTrail(k + 1,2);
+    
+    dist = sqrt((x2-x1).^2) + ((y2-y1).^2);
+    femaleDistance = femaleDistance + dist;
+end
+
+for k = 1: maleTrailLenght
+    x1 = maleTrail(k,1);
+    y1 = maleTrail(k,2);
+    x2 = maleTrail(k + 1,1);
+    y2 = maleTrail(k + 1,2);
+    
+    dist = sqrt((x2-x1).^2) + ((y2-y1).^2);
+    maleDistance = maleDistance + dist;
+end
+
+maleDistance = maleDistance + copulaDistance;
+dist('-----------> Dist: ');
+dist(maleDistance);
+femaleDistance = femaleDistance + copulaDistance;
+
+% SummaryBox1 = uicontrol('style','text');
+% str = {'Distancia percorrida pelo macho (px): ',num2str(maleDistance)};
+% set(SummaryBox1,'String',str)
+% set(SummaryBox1,'Position',[40,100,200,50])
+% 
+% SummaryBox2 = uicontrol('style','text');
+% str = {'Distancia percorrida pela femea (px): ',num2str(femaleDistance)};
+% set(SummaryBox2,'String',str)
+% set(SummaryBox2,'Position',[40,150,200,50])
+% 
+% SummaryBox3 = uicontrol('style','text');
+% str = {'Frames at? a primeira copula : ',num2str(firstCopulaFrame)};
+% set(SummaryBox3,'String',str)
+% set(SummaryBox3,'Position',[40,200,200,50])
+
+% ------------------------------------------------------- %
+%                          END                            %
+% ------------------------------------------------------- %
 
 end
 
@@ -378,6 +371,17 @@ end
 function actionAnnotation(action)
     dim2 = [.2 .6 .3 .3];
     annotation('textbox', dim2, 'String', action, ...
+                      'FitBoxToText', 'on');
+end
+
+function distanceAnnotation(msgMale, msgFemale, distMale, distFemale)
+    dim3 = [.2 .4 .3 .3];
+    dim4 = [.2 .3 .3 .3];
+    stringMessageMaleLabel = strcat(msgMale, ' ', distMale);
+    annotation('textbox', dim3, 'String', stringMessageMaleLabel, ...
+                      'FitBoxToText', 'on');
+    stringMessageFemaleLabel = strcat(msgFemale, ' ', distFemale);
+    annotation('textbox', dim4, 'String', stringMessageFemaleLabel, ...
                       'FitBoxToText', 'on');
 end
 
@@ -419,7 +423,7 @@ function sex(m,l,fig)
     movegui(fig, 'northeast');%mudar para set coordinates
     figure(fig); hold on
 % insert before sex image on figure
-    subplot(2,2,2);
+    subplot(2,2,1);
     strSexB = sprintf('Before Sex: %d',m);title(strSexB);    
     sexImageB = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+m));
@@ -427,8 +431,8 @@ function sex(m,l,fig)
     imshow(imageAuxB); title(strSexB);
     hold on
 % insert after sex image on figure
-    subplot(2,2,3);
-    strSexA = sprintf('After Sex: %d',l);title(strSexA);    
+    subplot(2,2,2);
+    strSexA = sprintf('After Sex: %d',l);title(strSexA);
     sexImageA = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+l));
     imageAuxA = imresize(sexImageA, 0.4);
