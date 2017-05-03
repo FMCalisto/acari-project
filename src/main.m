@@ -50,23 +50,22 @@ stringTotalLengthFemale = 0;
 
 % --------------------- END Message -------------------- %
 
-
+frameFirstCouple = 0;
 count = 0;
 
-set(touchFigure, 'Position', [630, 170, 500, 500]);
+%set(touchFigure, 'Position', [630, 170, 500, 500]);
 set(mainFigure, 'Position', [100, 000, 500, 1000]);
 hold on
 maleTrail = [];
 femaleTrail = [];
 touchDistArr = [];
 
-sumFemTotalTrail = 0;
-sumMaleTotalTrail = 0;
-numTouch = 0;
-numCopula = 0;
-frameFirstCopula = 0;
-frameFirstTouch = 0;
+numKeyFrames = 0;
 
+isCoupling = false;
+isTouching = false;
+isTouchingNow = false;
+isCouplingNow = false;
 
 % Normal Frames %
 %baseNum = 262; % Initial Frame: 262
@@ -74,7 +73,7 @@ frameFirstTouch = 0;
 
 % Coupling Frames %
 baseNum = 15500; % Couple Frame: 15500
-nTotalFrames = 500; % Total: 23354 Frames
+nTotalFrames = 5000; % Total: 23354 Frames
 
 se = strel('disk',3);
 
@@ -82,23 +81,12 @@ se = strel('disk',3);
 %Exprimentar varios valores para ALPHA
 
 for i = 0 : step : nFrameBKG
-    %sprintf('BKG %d',i)
     imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                    baseNum + i));
     Y = imgfr;
     Bkg = alfa * double(Y) + (1 - alfa) * double(Bkg);
     
     imgUInt8 = uint8(Bkg);
-    %imshow(imgUInt8); drawnow
-    %imshow(imgUInt8Last); drawnow
-    if i == 500
-        touch(500,touchFigure);   %%%%%  TOUCH  %%%%%
-        figure(mainFigure);
-    end
-    if i == 360
-        sex(350,360, touchFigure);
-        figure(mainFigure);   %%%%%  SEX  %%%%%
-    end
 end
 
 % ------------------ END Backgroud ------------------ %
@@ -197,15 +185,13 @@ for i = 0 : stepRoi : nFrameROI
         if ( regnum > 1 )
             acariA = regionProps(inds(1));
             acariB = regionProps(inds(2));
-%             disp(acariA.Centroid);
-%             disp(acariB);
             if (acariA.Area) > (acariB.Area)  %se A > B, A e' femea
                 femaleTrail = [femaleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
                 maleTrail = [maleTrail;[acariB.Centroid(1,1) acariB.Centroid(1,2)]];
             else  %se A <= B, A e' macho
                 maleTrail = [maleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
                 femaleTrail = [femaleTrail;[acariB.Centroid(1,1) acariB.Centroid(1,2)]];
-            end    
+            end
         else
             %existem 1 regiao
             if (regnum > 0)
@@ -241,34 +227,9 @@ for i = 0 : stepRoi : nFrameROI
               femaleTrail(sizeMaleTrail(1,1), 2); ...
               maleTrail(sizeMaleTrail(1,1), 1), ...
               maleTrail(sizeMaleTrail(1,1), 2)];
-          
-          
-        if (sizeMaleTrail > 1)
-            femaleTotalTrail = [femaleTrail(sizeMaleTrail(1,1) - 1, 1), ...
-              femaleTrail(sizeMaleTrail(1,1) - 1, 2); ...
-              femaleTrail(sizeMaleTrail(1,1), 1), ...
-              femaleTrail(sizeMaleTrail(1,1), 2)];
-          maleTotalTrail = [maleTrail(sizeMaleTrail(1,1) - 1, 1), ...
-              maleTrail(sizeMaleTrail(1,1) - 1, 2); ...
-              maleTrail(sizeMaleTrail(1,1), 1), ...
-              maleTrail(sizeMaleTrail(1,1), 2)];
-          
-          pdistFTT = pdist(femaleTotalTrail, 'euclidean');          
-          sumFemTotalTrail = sumFemTotalTrail + pdistFTT;
-          pdistMTT = pdist(maleTotalTrail, 'euclidean');          
-          sumMaleTotalTrail = sumMaleTotalTrail + pdistMTT;
-        end 
-          
-          
-          
-          
-          
         D = pdist(DX, 'euclidean');
         disp('Male/Female Distance: ');
         disp(D);
-        
-        disp('-----------> Female Total Distance: ');
-        disp(sumFemTotalTrail);
 
         touchDistArr = [touchDistArr; D];
 
@@ -278,13 +239,52 @@ for i = 0 : stepRoi : nFrameROI
 
         couplingDistance = D < 5;
         couplingTime = 600 / i < 1;
-        isCoupling = couplingDistance && couplingTime;
-
+        isCouplingNow = couplingDistance && couplingTime;
         sizeTouchDistArr = size(touchDistArr);
         
-        hold on
+        if(touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
+            isTouchingNow = true;
+        else
+            isTouchingNow = false;
+        end
+        
+        if(isTouching == false)
+            if(isTouchingNow == true)
+                touch(i, touchFigure, numKeyFrames);   %%%%%  TOUCH  %%%%%
+                figure(mainFigure);
+                
+                numKeyFrames = numKeyFrames + 1;
+                isTouching = isTouchingNow;
+            end
+        end
+        
+        if(isTouching == true)
+            if(isTouchingNow == false)
+                isTouching = isTouchingNow;
+            end
+        end
+        
+        if(isCoupling == false)
+            if(isCouplingNow == true)
+                sex(i, 'beforeSex', touchFigure, numKeyFrames);
+                figure(mainFigure);   %%%%%  SEX  %%%%%
+                
+                numKeyFrames = numKeyFrames + 1;
+                isCoupling = isCouplingNow;
+            end
+        end
+        
+        if(isCoupling == true)
+            if(isCouplingNow == false)
+                sex(i, 'afterSex', touchFigure, numKeyFrames);
+                figure(mainFigure);   %%%%%  SEX  %%%%%
+                
+                numKeyFrames = numKeyFrames + 1;
+                isCoupling = isCouplingNow;
+            end
+        end
 
-        if (touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
+        if (isTouchingNow)
             if (isCoupling)
                 while(count == 0)
                     frameFirstCouple = i;
@@ -299,8 +299,6 @@ for i = 0 : stepRoi : nFrameROI
                 actionAnnotation(stringTouchAction);
             end
         end
-        
-        hold off
         
     end
     
@@ -331,8 +329,7 @@ for i = 0 : stepRoi : nFrameROI
 %     %clearpoints(h) %Limpar Points
 
     drawnow
-    %clf(mainFigure, 'reset');
-    hold off
+    clf(mainFigure, 'reset');
     
 end
 
@@ -341,28 +338,6 @@ end
 %                    Touch                            % 
 %                                                     % 
 % --------------------------------------------------- %
-
-% Create the figure
-mFigure = figure('Name','Output Data')
-
-
- ax1 = axes('Position',[0 0 1 1],'Visible','off');
-% ax2 = axes('Position',[.3 .1 .6 .8]);
-
-% t = 0:1000;
-% y = 0.25*exp(-0.005*t);
-% plot(ax2,t,y)
-
-title('Resumo de informacoes do Video:')
-axes(ax1) % sets ax1 to current axes
-
-texts = {'Distancia percorrida macho'; 'Distancia percorridafemea ';'Num de toques';'Num de copulas';'Frame e tempo do 1º toque';'Frame e tempo do 1? copula'};
-vars = {num2str(sumMaleTotalTrail); num2str(sumFemTotalTrail); numTouch; numCopula; frameFirstTouch; frameFirstCopula;};
-names = strcat(texts, {': '}, vars);
-
-
-
-text(.025,0.6,names)
 
 end
 
@@ -384,13 +359,14 @@ function actualTime = frameToTime(nFrame)
     actualTime = (nFrame) * frameTime;
 end
 
-function touch(n,fig)
+function touch(n,fig, numKeyFrames)
+    numKeyFrames = numKeyFrames + 1;
     baseNum = 262; % Initial Frame
     %touchFigure = figure(2);
 %     movegui(fig, 'northeast');%mudar para set coordinates
     figure(fig); hold on
 % insert touch image on figure
-    subplot(2,2,1);
+    subplot(3, 3, numKeyFrames);
     str = sprintf('Touch: %d',n); title(str);
     touchImageT = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+n));
@@ -411,28 +387,28 @@ end
 %                                                     % 
 % --------------------------------------------------- %
 
-function sex(m,l,fig)
+function sex(m, message, fig, numKeyFrames)
 
+    numKeyFrames = numKeyFrames + 1;
     baseNum = 262; % Initial Frame
     movegui(fig, 'northeast');%mudar para set coordinates
     figure(fig); hold on
-% insert before sex image on figure
-    subplot(2,2,2);
-    strSexB = sprintf('Before Sex: %d',m);title(strSexB);    
+% insert  sex image on figure
+    subplot(3, 3, numKeyFrames);
+    strSexB = sprintf(message, ': %d', m);title(strSexB);    
     sexImageB = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+m));
     imageAuxB = imresize(sexImageB, 0.4);
     imshow(imageAuxB); title(strSexB);
     hold on
-% insert after sex image on figure
-
-    subplot(2,2,3);
-    strSexA = sprintf('After Sex: %d',l);title(strSexA);    
-    sexImageA = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
-                      baseNum+l));
-    imageAuxA = imresize(sexImageA, 0.4);
-    imshow(imageAuxA); title(strSexA);
-    hold on
+% % insert after sex image on figure
+%     subplot(2, 2, numKeyFrames + 1);
+%     strSexA = sprintf('After Sex: %d',l);title(strSexA);    
+%     sexImageA = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
+%                       baseNum+l));
+%     imageAuxA = imresize(sexImageA, 0.4);
+%     imshow(imageAuxA); title(strSexA);
+%     hold on
 %     drawnow;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
