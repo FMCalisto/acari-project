@@ -50,7 +50,7 @@ stringTotalLengthFemale = 0;
 
 % --------------------- END Message -------------------- %
 
-frameFirstCouple = 0;
+
 count = 0;
 
 set(touchFigure, 'Position', [630, 170, 500, 500]);
@@ -62,6 +62,11 @@ touchDistArr = [];
 
 sumFemTotalTrail = 0;
 sumMaleTotalTrail = 0;
+numTouch = 0;
+numCopula = 0;
+frameFirstCopula = 0;
+frameFirstTouch = 0;
+
 
 % Normal Frames %
 %baseNum = 262; % Initial Frame: 262
@@ -69,7 +74,7 @@ sumMaleTotalTrail = 0;
 
 % Coupling Frames %
 baseNum = 15500; % Couple Frame: 15500
-nTotalFrames = 1000; % Total: 23354 Frames
+nTotalFrames = 500; % Total: 23354 Frames
 
 se = strel('disk',3);
 
@@ -90,10 +95,10 @@ for i = 0 : step : nFrameBKG
         touch(500,touchFigure);   %%%%%  TOUCH  %%%%%
         figure(mainFigure);
     end
-%     if i == 360
-%         sex(350,360, touchFigure);
-%         figure(mainFigure);   %%%%%  SEX  %%%%%
-%     end
+    if i == 360
+        sex(350,360, touchFigure);
+        figure(mainFigure);   %%%%%  SEX  %%%%%
+    end
 end
 
 % ------------------ END Backgroud ------------------ %
@@ -349,19 +354,15 @@ y = 0.25*exp(-0.005*t);
 plot(ax2,t,y)
 
 title('Resumo de informacoes do Video:')
-descr = {'Distancia percorrida'
-    'macho:' + sumMaleTotalTrail;
-    'Distancia percorrida'
-    'femea: ' + sumFemTotalTrail;
-    ' ';
-    'N? de toques';
-    'N? de copulas';
-    'Frame e '
-    'tempo do 1? toque'
-    'Frame e '
-    'tempo do 1? copula';
-    };
-
+descr = {'Distancia percorrida macho:' , sumMaleTotalTrail;
+   'Distancia percorridafemea: ' , sumFemTotalTrail;
+    'N? de toques' , numTouch;
+    'N? de copulas' , numCopula;
+    'Frame e tempo do 1? toque' , frameFirstTouch;
+    'Frame e tempo do 1? copula' , frameFirstCopula;
+   };
+% a=10
+% descr = {'aaaa',a;'bb',12}
 axes(ax1) % sets ax1 to current axes
 text(.025,0.6,descr)
 
@@ -418,7 +419,7 @@ function sex(m,l,fig)
     movegui(fig, 'northeast');%mudar para set coordinates
     figure(fig); hold on
 % insert before sex image on figure
-    subplot(2,2,1);
+    subplot(2,2,2);
     strSexB = sprintf('Before Sex: %d',m);title(strSexB);    
     sexImageB = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+m));
@@ -426,7 +427,7 @@ function sex(m,l,fig)
     imshow(imageAuxB); title(strSexB);
     hold on
 % insert after sex image on figure
-    subplot(2,2,2);
+    subplot(2,2,3);
     strSexA = sprintf('After Sex: %d',l);title(strSexA);    
     sexImageA = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
                       baseNum+l));
