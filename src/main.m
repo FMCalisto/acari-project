@@ -2,14 +2,39 @@ function main
 clear
 clc
 close all
+%     warning off;
 
-% PERGUNTAS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Se nessario volto a apagar estas linhas 
 %
-% 2) Como e que faco a funcionalidade de vis. da trajectoria?
-% 2.1) Pode ser as varias box ao longo do tempo?
-% 3) O que e o num de deteccao de falhas?
-% 4) Que key-frames sao estasasd?
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+obj = VideoReader('../videos/SonofMated10.avi');
+
+disp('info');
+info = get(obj);
+disp(info);
+
+disp('imagebackground ');
+imagebackground = read(obj,1);
+teste = figure(100);
+imshow(imagebackground);
+
+nFrames = obj.FrameRate;
+str = sprintf('nFrames: %d',round(nFrames));
+disp(str);
+disp('CurrentTime');
+CurrentTime = obj.CurrentTime;
+disp(CurrentTime);
+ 
+disp('Duration');
+Duration = obj.Duration;
+disp(Duration);
+
+disp('Height');
+Height = obj.Height;
+disp(Height);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % -------------------- Timer -------------------- %
 
@@ -21,7 +46,7 @@ imgbk = imread('../frames/SonofMated10/SonofMated1000262.jpg');
 
 thr = 29; % Optimal Tested Value: 29
 minArea = 50; % Optimal Tested Value: 7
-alfa=0.10;
+alfa=0.10;  %Exprimentar varios valores para ALPHA
 baseBkg = 262 % Initial Frame: 262
 
 nFrameBKG = 1000; % 23354 Frames used to compute background image
@@ -76,9 +101,6 @@ baseNum = 15500; % Couple Frame: 15500
 nTotalFrames = 5000; % Total: 23354 Frames
 
 se = strel('disk',3);
-
-        
-%Exprimentar varios valores para ALPHA
 
 for i = 0 : step : nFrameBKG
     imgfr = imread(sprintf('../frames/SonofMated10/SonofMated10%.5d.jpg', ...
@@ -306,7 +328,7 @@ for i = 0 : stepRoi : nFrameROI
         %   Grafic    correr depois de criar distancia        % 
         % --------------------------------------------------- %
     
-%     warning off;
+
 % 
 %     h = animatedline('Marker','v','Color','red','LineStyle','-');
 %     axis([0,4*pi,-1,1])
@@ -327,6 +349,8 @@ for i = 0 : stepRoi : nFrameROI
 %         drawnow
 %     end
 %     %clearpoints(h) %Limpar Points
+
+
 
     drawnow
     clf(mainFigure, 'reset');
