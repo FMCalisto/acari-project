@@ -74,7 +74,8 @@ nTotalFrames = 7885; % Total: 7885 Frames
 % ----------------- Backgroud ------------------ %
 
 thr = 29; % Optimal Tested Value: 29
-minArea = 50; % Optimal Tested Value: 7
+minArea = 10; % Optimal Tested Value: 7
+maxArea = 50; % Optimal Tested Value: ?
 alfa=0.10;  %Exprimentar varios valores para ALPHA
 
 nFrameBKG = 1000; % 23354 Frames used to compute background image
@@ -213,7 +214,7 @@ for i = 0 : stepRoi : nFrameROI
     % ----------------------------------------------------------- %
     [lb num]=bwlabel(bw);
     regionProps = regionprops(lb,'area','FilledImage','Centroid');
-    inds = find([regionProps.Area]>minArea);
+    inds = find([regionProps.Area] > minArea);
     
     regnum = length(inds);
     %%%%%%%%%%inds number explained
@@ -324,8 +325,10 @@ for i = 0 : stepRoi : nFrameROI
         
         if(isTouching == false)
             if(isTouchingNow == true)
-                touch(i, touchFigure, numKeyFrames);   %%%%%  TOUCH  %%%%%
-                figure(mainFigure);
+                if (numKeyFrames < 9)
+                    touch(i, touchFigure, numKeyFrames);   %%%%%  TOUCH  %%%%%
+                    figure(mainFigure);
+                end
                 
                 numKeyFrames = numKeyFrames + 1;
                 isTouching = isTouchingNow;
@@ -340,8 +343,10 @@ for i = 0 : stepRoi : nFrameROI
         
         if(isCoupling == false)
             if(isCouplingNow == true)
-                sex(i, 'beforeSex', touchFigure, numKeyFrames);
-                figure(mainFigure);   %%%%%  SEX  %%%%%
+                if (numKeyFrames < 9)
+                    sex(i, 'beforeSex', touchFigure, numKeyFrames);
+                    figure(mainFigure);   %%%%%  SEX  %%%%%
+                end
                 
                 numKeyFrames = numKeyFrames + 1;
                 isCoupling = isCouplingNow;
@@ -350,8 +355,10 @@ for i = 0 : stepRoi : nFrameROI
         
         if(isCoupling == true)
             if(isCouplingNow == false)
+                if (numKeyFrames < 9)
                 sex(i, 'afterSex', touchFigure, numKeyFrames);
                 figure(mainFigure);   %%%%%  SEX  %%%%%
+                end
                 
                 numKeyFrames = numKeyFrames + 1;
                 isCoupling = isCouplingNow;
@@ -436,13 +443,21 @@ function actualTime = frameToTime(nFrame)
 end
 
 function touch(n,fig, numKeyFrames)
-    numKeyFrames = numKeyFrames + 1;
+
+    nSubPlot = 3;
+    mSubPlot = 3;
+
     baseNum = 262; % Initial Frame
     %touchFigure = figure(2);
 %     movegui(fig, 'northeast');%mudar para set coordinates
     figure(fig); hold on
 % insert touch image on figure
-    subplot(3, 3, numKeyFrames);
+    if (numKeyFrames < 9)
+        numKeyFrames = numKeyFrames + 1;
+        subplot(nSubPlot, mSubPlot, numKeyFrames);
+    else
+        dist('MAX SUBPLOTS NUMBER ALLOWED');
+    end
     str = sprintf('Touch: %d',n); title(str);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %        EXAMPLE 1 & 2                           %
@@ -480,12 +495,20 @@ end
 
 function sex(m, message, fig, numKeyFrames)
 
-    numKeyFrames = numKeyFrames + 1;
+    % N & M number of subplots
+    nSubplot = 3;
+    mSubplot = 3;
+    
     baseNum = 262; % Initial Frame
     movegui(fig, 'northeast');%mudar para set coordinates
     figure(fig); hold on
 % insert  sex image on figure
-    subplot(3, 3, numKeyFrames);
+    if (numKeyFrames < 9)
+        numKeyFrames = numKeyFrames + 1;
+        subplot(nSubplot, mSubplot, numKeyFrames);
+    else
+        dist('MAX SUBPLOTS NUMBER ALLOWED');
+    end
     strSexB = sprintf(message, ': %d', m);title(strSexB);    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %        EXAMPLE 1 & 2                           %
