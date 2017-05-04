@@ -612,8 +612,8 @@ ax1 = axes('Position',[0 0 1 1],'Visible','off');
 title('Resumo de informacoes do Video:')
 axes(ax1) % sets ax1 to current axes
 
-texts = {'Distancia percorrida macho'; 'Distancia percorridafemea ';'Num de toques';'Num de copulas';'Frame first touch';'Time first touch';'Frame first copula';'Time first copula'};
-vars = {num2str(sumMaleTotalTrail); num2str(sumFemTotalTrail); num2str(numTouch); num2str(numCopula); num2str(frameFirstTouch); num2str(frameToTime(frameFirstTouch)); num2str(frameFirstCopula);num2str(frameToTime(frameFirstCopula));};
+texts = {'Num de toques';'Num de copulas';'Frame first touch';'Time first touch';'Frame first copula';'Time first copula'};
+vars = {num2str(numTouch); num2str(numCopula); num2str(frameFirstTouch); num2str(frameToTime(frameFirstTouch)); num2str(frameFirstCopula + 30);num2str(frameToTime(frameFirstCopula + 30));};
 names = strcat(texts, {': '}, vars);
 
 
