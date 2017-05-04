@@ -60,7 +60,7 @@ close all
 
 imgbk = imread('../newframes/frame0000.jpg');
 baseBkg = 0; % Initial Frame: 0
-baseNum = 1500;
+baseNum = 500;
 nTotalFrames = 7885; % Total: 7885 Frames
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -164,8 +164,8 @@ imgBkgBase = imgUInt8; % Imagem de background
 stepRoi = 15;
 nFrameROI = nTotalFrames;  % 23354 Frames used to compute background image
 
-for i = baseNum : stepRoi : nFrameROI
-%for i = 0 : stepRoi : nFrameROI
+for i = baseNum : stepRoi : nFrameROI - baseNum
+%for i = 0 : stepRoi : nFrameROI - baseNum
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %        EXAMPLE 1 & 2                           %
@@ -274,6 +274,9 @@ for i = baseNum : stepRoi : nFrameROI
             arrMale = [];
             arrFemale = [];
             
+            disp('MY NIGGA REGNUM: ')
+            disp(regnum);
+            
             for numRegProps = 1 : regnum
                 acariX = regionProps(inds(numRegProps)).Centroid(1,1);
                 acariY = regionProps(inds(numRegProps)).Centroid(1,2);
@@ -290,21 +293,6 @@ for i = baseNum : stepRoi : nFrameROI
                 % regiao perto do male
                 arrMale = [arrMale; pdistOfNeighborM];
                 arrFemale = [arrFemale; pdistOfNeighborF];
-%                 if (pdistOfNeighborM < neighbor)
-%                     %ACEITAR REGIAO -> GUARDAR EM VAR
-%                     reg1 = regionProps(inds(numRegProps));
-%                 else
-%                     
-%                     %regionProps(inds(1),1).Area;
-%                 end
-%                 % regiao perto do female
-%                 if (pdistOfNeighborF < neighbor)
-%                     %ACEITAR REGIAO -> GUARDAR EM VAR
-%                     reg2 = regionProps(inds(numRegProps));
-%                 else
-%                     
-%                     %regionProps(inds(1),1).Area;
-%                 end
             end
             [MM IM] = min(arrMale);
             reg1 = regionProps(inds(IM));
@@ -318,8 +306,8 @@ for i = baseNum : stepRoi : nFrameROI
             pdistReg1Reg2 = pdist(distReg1Reg2, 'euclidean');
             
             if (pdistReg1Reg2 == 0)
-                regnum = 1;
                 regionProps(inds(1)) = reg1;
+                regnum = 1;
             else
                 regionProps(inds(1)) = reg1;
                 regionProps(inds(2)) = reg2;
@@ -388,12 +376,12 @@ for i = baseNum : stepRoi : nFrameROI
                   maleTrail(sizeMaleTrail(1,1), 1), ...
                   maleTrail(sizeMaleTrail(1,1), 2)];
             D = pdist(DX, 'euclidean');
-            disp('Male/Female Distance: ');
-            disp(D);
+%             disp('Male/Female Distance: ');
+%             disp(D);
 
             touchDistArr = [touchDistArr; D];
 
-            disp(touchDistArr)
+            %disp(touchDistArr)
 
             %touchDistance = D < 10;
 
