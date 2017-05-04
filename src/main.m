@@ -61,7 +61,7 @@ close all
 imgbk = imread('../newframes/frame0000.jpg');
 baseBkg = 0; % Initial Frame: 0
 baseNum = 1500;
-nTotalFrames = 7885; % Total: 7885 Frames
+nTotalFrames = 4800; % Total: 7885 Frames
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -117,6 +117,12 @@ touchDistArr = [];
 neighbor = 15;
 
 numKeyFrames = 0;
+numTouch = 0;
+numCopula = 0;
+frameFirstTouch = 0;
+frameFirstCopula = 0;
+sumMaleTotalTrail = 0;
+sumFemaleTotalTrail = 0;
 
 isCoupling = false;
 isTouching = false;
@@ -198,7 +204,9 @@ for i = baseNum : stepRoi : nFrameROI
     %imshow(imageAuxRoi);lixo
     
     % --------------------------------------------------- %
-    %%%%%subplot(2,1,1,'align');  %put analized image on the left side of mainFigure
+    subplot(2,1,1,'align');  %put analized image on the left side of mainFigure
+    subplot(2,1,2), plot(touchDistArr, 'Color', 'green'), title('Male vs Female Distance'), xlabel('Frames/Step'), ylabel('Distance'),
+    subplot(2,1,1), hold on
     imshow(imgfrNew); %% Caminho rectangulos amarelos - Background 
     hold on
     % --------------------------------------------------- %
@@ -357,16 +365,68 @@ for i = baseNum : stepRoi : nFrameROI
             acariA = regionProps(inds(1));
             acariB = regionProps(inds(2));
             if (acariA.Area) > (acariB.Area)  %se A > B, A e' femea
+                
+            
+%                 if (sizeMaleTrail(1,1) == 0)
+%                 maleAllDist = [maleTrail(sizeMaleTrail(1,1), 1), ...
+%                   maleTrail(sizeMaleTrail(1,1), 2); ...
+%                   acariB.Centroid(1,1), ...
+%                   acariB.Centroid(1,2)];
+%                 pdistMaleAll = pdist(maleAllDist, 'euclidean');
+%                 sumMaleTotalTrail = sumMaleTotalTrail + pdistMaleAll;
+%                 
+%                 femaleAllDist = [femaleTrail(sizeMaleTrail(1,1), 1), ...
+%                   femaleTrail(sizeMaleTrail(1,1), 2); ...
+%                   acariA.Centroid(1,1), ...
+%                   acariA.Centroid(1,2)];
+%                 pdistFemaleAll = pdist(femaleAllDist, 'euclidean');
+%                 sumFemaleTotalTrail = sumFemaleTotalTrail + pdistFemaleAll;
+%                 end
+                
+                
                 femaleTrail = [femaleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
                 maleTrail = [maleTrail;[acariB.Centroid(1,1) acariB.Centroid(1,2)]];
+                
+            
             else  %se A <= B, A e' macho
+%                 if (sizeMaleTrail(1,1) == 0)
+%                 maleAllDist = [maleTrail(sizeMaleTrail(1,1), 1), ...
+%                   maleTrail(sizeMaleTrail(1,1), 2); ...
+%                   acariA.Centroid(1,1), ...
+%                   acariA.Centroid(1,2)];
+%                 pdistMaleAll = pdist(maleAllDist, 'euclidean');
+%                 sumMaleTotalTrail = sumMaleTotalTrail + pdistMaleAll;
+%                 
+%                 femaleAllDist = [femaleTrail(sizeMaleTrail(1,1), 1), ...
+%                   femaleTrail(sizeMaleTrail(1,1), 2); ...
+%                   acariB.Centroid(1,1), ...
+%                   acariB.Centroid(1,2)];
+%                 pdistFemaleAll = pdist(femaleAllDist, 'euclidean');
+%                 sumFemaleTotalTrail = sumFemaleTotalTrail + pdistFemaleAll;
+%                 end
                 maleTrail = [maleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
                 femaleTrail = [femaleTrail;[acariB.Centroid(1,1) acariB.Centroid(1,2)]];
+               
             end
         else
             %existem 1 regiao
             if (regnum == 1)
-                acariA = regionProps(inds(1));
+%                 if (sizeMaleTrail(1,1) == 0)
+%                 acariA = regionProps(inds(1));
+%                 maleAllDist = [maleTrail(sizeMaleTrail(1,1), 1), ...
+%                   maleTrail(sizeMaleTrail(1,1), 2); ...
+%                   acariA.Centroid(1,1), ...
+%                   acariA.Centroid(1,2)];
+%                 pdistMaleAll = pdist(maleAllDist, 'euclidean');
+%                 sumMaleTotalTrail = sumMaleTotalTrail + pdistMaleAll;
+%                 
+%                 femaleAllDist = [femaleTrail(sizeMaleTrail(1,1), 1), ...
+%                   femaleTrail(sizeMaleTrail(1,1), 2); ...
+%                   acariA.Centroid(1,1), ...
+%                   acariA.Centroid(1,2)];
+%                 pdistFemaleAll = pdist(femaleAllDist, 'euclidean');
+%                 sumFemaleTotalTrail = sumFemaleTotalTrail + pdistFemaleAll;
+%                 end
                 femaleTrail = [femaleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
                 maleTrail = [maleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
             end
@@ -434,6 +494,10 @@ for i = baseNum : stepRoi : nFrameROI
                     if (numKeyFrames < 9)
                         touch(i, touchFigure, numKeyFrames);   %%%%%  TOUCH  %%%%%
                         figure(mainFigure);
+                        if (numTouch == 0)
+                            frameFirstTouch = i;
+                        end
+                        numTouch = numTouch + 1;
                     end
 
                     numKeyFrames = numKeyFrames + 1;
@@ -452,6 +516,10 @@ for i = baseNum : stepRoi : nFrameROI
                     if (numKeyFrames < 9)
                         sex(i, 'beforeSex', touchFigure, numKeyFrames);
                         figure(mainFigure);   %%%%%  SEX  %%%%%
+                        if (numCopula == 0)
+                            frameFirstCopula = i;
+                        end
+                        numCopula = numCopula + 1;
                     end
 
                     numKeyFrames = numKeyFrames + 1;
@@ -529,27 +597,28 @@ end
 %                    Touch                            % 
 %                                                     % 
 % --------------------------------------------------- %
-% % Create the figure
-% mFigure = figure('Name','Output Data')
-% 
-% 
-%  ax1 = axes('Position',[0 0 1 1],'Visible','off');
-% % ax2 = axes('Position',[.3 .1 .6 .8]);
-% 
-% % t = 0:1000;
-% % y = 0.25*exp(-0.005*t);
-% % plot(ax2,t,y)
-% 
-% title('Resumo de informacoes do Video:')
-% axes(ax1) % sets ax1 to current axes
-% 
-% texts = {'Distancia percorrida macho'; 'Distancia percorridafemea ';'Num de toques';'Num de copulas';'Frame e tempo do 1???? toque';'Frame e tempo do 1? copula'};
-% vars = {num2str(sumMaleTotalTrail); num2str(sumFemTotalTrail); numTouch; numCopula; frameFirstTouch; frameFirstCopula;};
-% names = strcat(texts, {': '}, vars);
-% 
-% 
-% 
-% text(.025,0.6,names)
+% Create the figure
+
+mFigure = figure('Name','Output Data')
+
+
+ax1 = axes('Position',[0 0 1 1],'Visible','off');
+% ax2 = axes('Position',[.3 .1 .6 .8]);
+
+% t = 0:1000;
+% y = 0.25*exp(-0.005*t);
+% plot(ax2,t,y)
+
+title('Resumo de informacoes do Video:')
+axes(ax1) % sets ax1 to current axes
+
+texts = {'Distancia percorrida macho'; 'Distancia percorridafemea ';'Num de toques';'Num de copulas';'Frame first touch';'Time first touch';'Frame first copula';'Time first copula'};
+vars = {num2str(sumMaleTotalTrail); num2str(sumFemTotalTrail); num2str(numTouch); num2str(numCopula); num2str(frameFirstTouch); num2str(frameToTime(frameFirstTouch)); num2str(frameFirstCopula);num2str(frameToTime(frameFirstCopula));};
+names = strcat(texts, {': '}, vars);
+
+
+
+text(.025,0.6,names)
 
 end
 
@@ -576,7 +645,7 @@ function touch(n,fig, numKeyFrames)
     nSubPlot = 3;
     mSubPlot = 3;
 
-    baseNum = 262; % Initial Frame
+    baseNum = 0; % Initial Frame
     %touchFigure = figure(2);
 %     movegui(fig, 'northeast');%mudar para set coordinates
     figure(fig); hold on
@@ -628,7 +697,7 @@ function sex(m, message, fig, numKeyFrames)
     nSubplot = 3;
     mSubplot = 3;
     
-    baseNum = 262; % Initial Frame
+    baseNum = 0; % Initial Frame
     movegui(fig, 'northeast');%mudar para set coordinates
     figure(fig); hold on
 % insert  sex image on figure
