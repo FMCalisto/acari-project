@@ -60,7 +60,7 @@ close all
 
 imgbk = imread('../newframes/frame0000.jpg');
 baseBkg = 0; % Initial Frame: 0
-baseNum = 2500;
+baseNum = 1500;
 nTotalFrames = 7885; % Total: 7885 Frames
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -263,13 +263,16 @@ for i = baseNum : stepRoi : nFrameROI
         
         % Inicio da rotina para filtrar falsos positivos
         sizeMaleTrail = size(maleTrail);
-        regnumBiggerThen = regnum > 2;
+        regnumBiggerThen = regnum > 1;
         sizeMaleTrailBiggerThen = sizeMaleTrail > 1;
         
         if (regnumBiggerThen & sizeMaleTrailBiggerThen)
             
             %reg1 = 0;
             %reg2 = 0;
+            
+            arrMale = [];
+            arrFemale = [];
             
             for numRegProps = 1 : regnum
                 acariX = regionProps(inds(numRegProps)).Centroid(1,1);
@@ -285,24 +288,38 @@ for i = baseNum : stepRoi : nFrameROI
                       femaleTrail(sizeMaleTrail(1,1), 2)];
                 pdistOfNeighborF = pdist(distOfNeighborF, 'euclidean');
                 % regiao perto do male
-                if (pdistOfNeighborM < neighbor)
-                    %ACEITAR REGIAO -> GUARDAR EM VAR
-                    reg1 = regionProps(inds(numRegProps));
-                else
-                    
-                    %regionProps(inds(1),1).Area;
-                end
-                % regiao perto do female
-                if (pdistOfNeighborF < neighbor)
-                    %ACEITAR REGIAO -> GUARDAR EM VAR
-                    reg2 = regionProps(inds(numRegProps));
-                else
-                    
-                    %regionProps(inds(1),1).Area;
-                end
+                arrMale = [arrMale; pdistOfNeighborM];
+                arrFemale = [arrFemale; pdistOfNeighborF];
+%                 if (pdistOfNeighborM < neighbor)
+%                     %ACEITAR REGIAO -> GUARDAR EM VAR
+%                     reg1 = regionProps(inds(numRegProps));
+%                 else
+%                     
+%                     %regionProps(inds(1),1).Area;
+%                 end
+%                 % regiao perto do female
+%                 if (pdistOfNeighborF < neighbor)
+%                     %ACEITAR REGIAO -> GUARDAR EM VAR
+%                     reg2 = regionProps(inds(numRegProps));
+%                 else
+%                     
+%                     %regionProps(inds(1),1).Area;
+%                 end
             end
-            if (reg1 == reg2)
-                regnum = reg1;
+            [MM IM] = min(arrMale);
+            reg1 = regionProps(inds(IM));
+            [MF IF] = min(arrFemale);
+            reg2 = regionProps(inds(IF));
+            
+            distReg1Reg2 = [reg1.Centroid(1,1), ...
+                      reg1.Centroid(1,2); ...
+                      reg2.Centroid(1,1), ...
+                      reg2.Centroid(1,2)];
+            pdistReg1Reg2 = pdist(distReg1Reg2, 'euclidean');
+            
+            if (pdistReg1Reg2 == 0)
+                regnum = 1;
+                regionProps(inds(1)) = reg1;
             else
                 regionProps(inds(1)) = reg1;
                 regionProps(inds(2)) = reg2;
