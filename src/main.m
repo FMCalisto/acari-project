@@ -60,7 +60,7 @@ close all
 
 imgbk = imread('../newframes/frame0000.jpg');
 baseBkg = 0; % Initial Frame: 0
-baseNum = 0;
+baseNum = 2500;
 nTotalFrames = 7885; % Total: 7885 Frames
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -114,6 +114,8 @@ maleTrail = [];
 femaleTrail = [];
 touchDistArr = [];
 
+neighbor = 15;
+
 numKeyFrames = 0;
 
 isCoupling = false;
@@ -162,7 +164,8 @@ imgBkgBase = imgUInt8; % Imagem de background
 stepRoi = 15;
 nFrameROI = nTotalFrames;  % 23354 Frames used to compute background image
 
-for i = 0 : stepRoi : nFrameROI
+for i = baseNum : stepRoi : nFrameROI
+%for i = 0 : stepRoi : nFrameROI
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %        EXAMPLE 1 & 2                           %
@@ -226,7 +229,8 @@ for i = 0 : stepRoi : nFrameROI
     sizeTrail = size(maleTrail);
     for k = sizeTrail-20 : 1 : sizeTrail
         sizeTrail = sizeTrail(1,1);
-        if i > 0
+        if (i > 0 & sizeTrail > 0)
+            % para imprimir apenas os ultimos 20 pontos
             if (sizeTrail < 21)
                 plot(maleTrail(:,1),maleTrail(:,2),'*','Color', ...
                     'red', 'LineStyle','-');
@@ -257,7 +261,57 @@ for i = 0 : stepRoi : nFrameROI
         
         %existem as 2 regioes
         
-        if ( regnum > 1 )
+        % Inicio da rotina para filtrar falsos positivos
+        sizeMaleTrail = size(maleTrail);
+        regnumBiggerThen = regnum > 2;
+        sizeMaleTrailBiggerThen = sizeMaleTrail > 1;
+        
+        if (regnumBiggerThen & sizeMaleTrailBiggerThen)
+            
+            %reg1 = 0;
+            %reg2 = 0;
+            
+            for numRegProps = 1 : regnum
+                acariX = regionProps(inds(numRegProps)).Centroid(1,1);
+                acariY = regionProps(inds(numRegProps)).Centroid(1,2);
+                distOfNeighborM = [acariX, ...
+                      acariY; ...
+                      maleTrail(sizeMaleTrail(1,1), 1), ...
+                      maleTrail(sizeMaleTrail(1,1), 2)];
+                pdistOfNeighborM = pdist(distOfNeighborM, 'euclidean');
+                distOfNeighborF = [acariX, ...
+                      acariY; ...
+                      femaleTrail(sizeMaleTrail(1,1), 1), ...
+                      femaleTrail(sizeMaleTrail(1,1), 2)];
+                pdistOfNeighborF = pdist(distOfNeighborF, 'euclidean');
+                % regiao perto do male
+                if (pdistOfNeighborM < neighbor)
+                    %ACEITAR REGIAO -> GUARDAR EM VAR
+                    reg1 = regionProps(inds(numRegProps));
+                else
+                    
+                    %regionProps(inds(1),1).Area;
+                end
+                % regiao perto do female
+                if (pdistOfNeighborF < neighbor)
+                    %ACEITAR REGIAO -> GUARDAR EM VAR
+                    reg2 = regionProps(inds(numRegProps));
+                else
+                    
+                    %regionProps(inds(1),1).Area;
+                end
+            end
+            if (reg1 == reg2)
+                regnum = reg1;
+            else
+                regionProps(inds(1)) = reg1;
+                regionProps(inds(2)) = reg2;
+                regnum = 2;
+            end
+        end
+        % FIM da rotina para filtrar falsos positivos
+        
+        if (regnum == 2)
             acariA = regionProps(inds(1));
             acariB = regionProps(inds(2));
             if (acariA.Area) > (acariB.Area)  %se A > B, A e' femea
@@ -269,12 +323,24 @@ for i = 0 : stepRoi : nFrameROI
             end
         else
             %existem 1 regiao
-            if (regnum > 0)
+            if (regnum == 1)
                 acariA = regionProps(inds(1));
                 femaleTrail = [femaleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
                 maleTrail = [maleTrail;[acariA.Centroid(1,1) acariA.Centroid(1,2)]];
             end
-        %caso nao existao 2 regioes nao adiciona nada    
+            %caso nao existao mais de 2 regioes preciso filtrar falsos
+            %positivos
+            
+%             para todas as region props
+% 		%male
+% 	if pdist(regionI, lastElementMaleTrail)
+% 		regiao boa
+% 	else descartar regiao
+% 		%female
+% 	if pdist(regionI, lastElementFemaleTrail)
+% 		regiao boa
+% 	else descartar regiao   
+            
         end
         for j=1:regnum
             [lin col]= find(lb == inds(j));
@@ -297,88 +363,92 @@ for i = 0 : stepRoi : nFrameROI
 %         disp(maleTrail(sizeTrail, 1));
 %         disp('Female Position: ');
 %         disp(femaleTrail(sizeTrail, 2));
+        
         sizeMaleTrail = size(maleTrail);
-        DX = [femaleTrail(sizeMaleTrail(1,1), 1), ...
-              femaleTrail(sizeMaleTrail(1,1), 2); ...
-              maleTrail(sizeMaleTrail(1,1), 1), ...
-              maleTrail(sizeMaleTrail(1,1), 2)];
-        D = pdist(DX, 'euclidean');
-        disp('Male/Female Distance: ');
-        disp(D);
+        if (i > 0 & sizeTrail > 0)
+            DX = [femaleTrail(sizeMaleTrail(1,1), 1), ...
+                  femaleTrail(sizeMaleTrail(1,1), 2); ...
+                  maleTrail(sizeMaleTrail(1,1), 1), ...
+                  maleTrail(sizeMaleTrail(1,1), 2)];
+            D = pdist(DX, 'euclidean');
+            disp('Male/Female Distance: ');
+            disp(D);
 
-        touchDistArr = [touchDistArr; D];
+            touchDistArr = [touchDistArr; D];
 
-        disp(touchDistArr)
+            disp(touchDistArr)
 
-        %touchDistance = D < 10;
+            %touchDistance = D < 10;
 
-        couplingDistance = D < 5;
-        couplingTime = 600 / i < 1;
-        isCouplingNow = couplingDistance && couplingTime;
-        sizeTouchDistArr = size(touchDistArr);
-        
-        if(touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
-            isTouchingNow = true;
-        else
-            isTouchingNow = false;
-        end
-        
-        if(isTouching == false)
-            if(isTouchingNow == true)
-                if (numKeyFrames < 9)
-                    touch(i, touchFigure, numKeyFrames);   %%%%%  TOUCH  %%%%%
-                    figure(mainFigure);
-                end
-                
-                numKeyFrames = numKeyFrames + 1;
-                isTouching = isTouchingNow;
-            end
-        end
-        
-        if(isTouching == true)
-            if(isTouchingNow == false)
-                isTouching = isTouchingNow;
-            end
-        end
-        
-        if(isCoupling == false)
-            if(isCouplingNow == true)
-                if (numKeyFrames < 9)
-                    sex(i, 'beforeSex', touchFigure, numKeyFrames);
-                    figure(mainFigure);   %%%%%  SEX  %%%%%
-                end
-                
-                numKeyFrames = numKeyFrames + 1;
-                isCoupling = isCouplingNow;
-            end
-        end
-        
-        if(isCoupling == true)
-            if(isCouplingNow == false)
-                if (numKeyFrames < 9)
-                sex(i, 'afterSex', touchFigure, numKeyFrames);
-                figure(mainFigure);   %%%%%  SEX  %%%%%
-                end
-                
-                numKeyFrames = numKeyFrames + 1;
-                isCoupling = isCouplingNow;
-            end
-        end
+            couplingDistance = D < 5;
+            couplingTime = 600 / i < 1;
+            isCouplingNow = couplingDistance && couplingTime;
+            sizeTouchDistArr = size(touchDistArr);
 
-        if (isTouchingNow)
-            if (isCoupling)
-                while(count == 0)
-                    frameFirstCouple = i;
-                    count = 1;
-                end
-                timeStartCoupling = num2str(frameToTime(i - frameFirstCouple));
-                timerAnnotation(timeStartCoupling, stringCoupleSeconds);
-                actionAnnotation(stringCoupleAction);
+            if(touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
+                isTouchingNow = true;
             else
-                timeStartTouch = num2str(frameToTime(i));
-                timerAnnotation(timeStartTouch, stringTouchSeconds);
-                actionAnnotation(stringTouchAction);
+                isTouchingNow = false;
             end
+
+            if(isTouching == false)
+                if(isTouchingNow == true)
+                    if (numKeyFrames < 9)
+                        touch(i, touchFigure, numKeyFrames);   %%%%%  TOUCH  %%%%%
+                        figure(mainFigure);
+                    end
+
+                    numKeyFrames = numKeyFrames + 1;
+                    isTouching = isTouchingNow;
+                end
+            end
+
+            if(isTouching == true)
+                if(isTouchingNow == false)
+                    isTouching = isTouchingNow;
+                end
+            end
+
+            if(isCoupling == false)
+                if(isCouplingNow == true)
+                    if (numKeyFrames < 9)
+                        sex(i, 'beforeSex', touchFigure, numKeyFrames);
+                        figure(mainFigure);   %%%%%  SEX  %%%%%
+                    end
+
+                    numKeyFrames = numKeyFrames + 1;
+                    isCoupling = isCouplingNow;
+                end
+            end
+
+            if(isCoupling == true)
+                if(isCouplingNow == false)
+                    if (numKeyFrames < 9)
+                    sex(i, 'afterSex', touchFigure, numKeyFrames);
+                    figure(mainFigure);   %%%%%  SEX  %%%%%
+                    end
+
+                    numKeyFrames = numKeyFrames + 1;
+                    isCoupling = isCouplingNow;
+                end
+            end
+
+            if (isTouchingNow)
+                if (isCoupling)
+                    while(count == 0)
+                        frameFirstCouple = i;
+                        count = 1;
+                    end
+                    timeStartCoupling = num2str(frameToTime(i - frameFirstCouple));
+                    timerAnnotation(timeStartCoupling, stringCoupleSeconds);
+                    actionAnnotation(stringCoupleAction);
+                else
+                    timeStartTouch = num2str(frameToTime(i));
+                    timerAnnotation(timeStartTouch, stringTouchSeconds);
+                    actionAnnotation(stringTouchAction);
+                end
+            end
+        
         end
         
     end
@@ -530,7 +600,8 @@ function sex(m, message, fig, numKeyFrames)
     else
         dist('MAX SUBPLOTS NUMBER ALLOWED');
     end
-    strSexB = sprintf(message, ': %d', m);title(strSexB);    
+    myStr = strcat(message, ': %d');
+    strSexB = sprintf(myStr, m);title(strSexB);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %        EXAMPLE 1 & 2                           %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
