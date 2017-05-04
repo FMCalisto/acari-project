@@ -89,6 +89,7 @@ Bkg=zeros(size(imgbk));
 touchFigure = figure(2);
 mainFigure = figure(1);
 
+
 % --------------------- END Figure --------------------- %
 
 % ---------------------- Message ----------------------- %
@@ -107,8 +108,8 @@ stringTotalLengthFemale = 0;
 frameFirstCouple = 0;
 count = 0;
 
-set(touchFigure, 'Position', [630, 170, 500, 500]);
-set(mainFigure, 'Position', [100, 000, 500, 1000]);
+set(touchFigure, 'Position', [630, 170, 500, 500],'Name','Key-Frames');
+set(mainFigure, 'Position', [100, 000, 500, 1000],'Name','Output Data');
 hold on
 maleTrail = [];
 femaleTrail = [];
@@ -123,6 +124,7 @@ frameFirstTouch = 0;
 frameFirstCopula = 0;
 sumMaleTotalTrail = 0;
 sumFemaleTotalTrail = 0;
+firstCopulatime = 0;
 
 isCoupling = false;
 isTouching = false;
@@ -203,9 +205,9 @@ for i = baseNum : stepRoi : nFrameROI
 %     set(mainFigure, 'Position', [100, 200, 500, 500])
     %imshow(imageAuxRoi);lixo
     
-    % --------------------------------------------------- %
+    % -----------Print Grafic distance------------------- %
     subplot(2,1,1,'align');  %put analized image on the left side of mainFigure
-    subplot(2,1,2), plot(touchDistArr, 'Color', 'green'), title('Male vs Female Distance'), xlabel('Frames/Step'), ylabel('Distance'),
+    subplot(2,1,2), plot(touchDistArr, 'Color', 'green'), title('Male vs Female Distance'), xlabel('Frames (x15)'), ylabel('Distance'),
     subplot(2,1,1), hold on
     imshow(imgfrNew); %% Caminho rectangulos amarelos - Background 
     hold on
@@ -286,8 +288,8 @@ for i = baseNum : stepRoi : nFrameROI
                 i = i;
             end
             
-            disp('MY NIGGA REGNUM');
-            disp(regnum);
+%             disp('MY NIGGA REGNUM');
+%             disp(regnum);
             for numRegProps = 1 : regnum
                 acariX = regionProps(inds(numRegProps)).Centroid(1,1);
                 acariY = regionProps(inds(numRegProps)).Centroid(1,2);
@@ -338,13 +340,13 @@ for i = baseNum : stepRoi : nFrameROI
                 biggerFail = 6000;
                 
                 regionProps(inds(1)) = reg1;
-                disp('MY NIGGA regionProps');
-                disp(regionProps(inds(1)));
+%                 disp('MY NIGGA regionProps');
+%                 disp(regionProps(inds(1)));
                 regnum = 1;
-                disp('MY NIGGA REG1');
-                disp(reg1);
-                disp('MY NIGGA REG2');
-                disp(reg2);
+%                 disp('MY NIGGA REG1');
+%                 disp(reg1);
+%                 disp('MY NIGGA REG2');
+%                 disp(reg2);
                 
                 count = 0;
                 
@@ -483,6 +485,11 @@ for i = baseNum : stepRoi : nFrameROI
             isCouplingNow = couplingDistance && couplingTime;
             sizeTouchDistArr = size(touchDistArr);
 
+            if (i == nTotalFrames)
+               isCouplingNow = false; 
+            end
+            
+            
             if(touchDistArr(sizeTouchDistArr(1, 1), 1) < 10)
                 isTouchingNow = true;
             else
@@ -491,14 +498,14 @@ for i = baseNum : stepRoi : nFrameROI
 
             if(isTouching == false)
                 if(isTouchingNow == true)
-                    if (numKeyFrames < 9)
+%                     if (numKeyFrames < 9)
                         touch(i, touchFigure, numKeyFrames);   %%%%%  TOUCH  %%%%%
                         figure(mainFigure);
                         if (numTouch == 0)
                             frameFirstTouch = i;
                         end
                         numTouch = numTouch + 1;
-                    end
+%                     end
 
                     numKeyFrames = numKeyFrames + 1;
                     isTouching = isTouchingNow;
@@ -634,7 +641,7 @@ end
 
 
 mFigure = figure('Name','Output Data')
-
+set(mFigure, 'Position', [300, 300, 300, 200]);
 
 ax1 = axes('Position',[0 0 1 1],'Visible','off');
 % ax2 = axes('Position',[.3 .1 .6 .8]);
@@ -646,12 +653,9 @@ ax1 = axes('Position',[0 0 1 1],'Visible','off');
 title('Resumo de informacoes do Video:')
 axes(ax1) % sets ax1 to current axes
 
-texts = {'Distancia percorrida macho';'Distancia percorrida femea';'Num de toques';'Num de copulas';'Frame first touch';'Time first touch';'Frame first copula';'Time first copula'};
-vars = {num2str(sumMaleTotalTrail);num2str(sumFemaleTotalTrail);num2str(numTouch); num2str(numCopula); num2str(frameFirstTouch); num2str(frameToTime(frameFirstTouch)); num2str(frameFirstCopula + 30);num2str(frameToTime(frameFirstCopula + 30));};
+texts = {'Distancia percorrida macho';'Distancia percorrida femea';'Num de toques';'Num de copulas';'Frame first touch';'Time first touch';'Frame first copula';'Time first copula';'Unidades'};
+vars = {num2str(sumMaleTotalTrail);num2str(sumFemaleTotalTrail);num2str(numTouch); num2str(numCopula); num2str(frameFirstTouch); num2str(frameToTime(frameFirstTouch)); num2str(frameFirstCouple);num2str(frameToTime(frameFirstCouple));'Unidades SI';};
 names = strcat(texts, {': '}, vars);
-
-
-
 text(.025,0.6,names)
 
 end
