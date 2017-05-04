@@ -125,11 +125,12 @@ frameFirstCopula = 0;
 sumMaleTotalTrail = 0;
 sumFemaleTotalTrail = 0;
 firstCopulatime = 0;
-
+countSex = 0;
 isCoupling = false;
 isTouching = false;
 isTouchingNow = false;
 isCouplingNow = false;
+numFail = 0;
 
 se = strel('disk',3);
 
@@ -336,8 +337,8 @@ for i = baseNum : stepRoi : nFrameROI
             
             if (pdistReg1Reg2 == 0)
                 
-                lessFail = 4900;
-                biggerFail = 6000;
+                lessFail = 4500;
+                biggerFail = 4516;
                 
                 regionProps(inds(1)) = reg1;
 %                 disp('MY NIGGA regionProps');
@@ -348,12 +349,12 @@ for i = baseNum : stepRoi : nFrameROI
 %                 disp('MY NIGGA REG2');
 %                 disp(reg2);
                 
-                count = 0;
+                
                 
                 if(i > lessFail & i < biggerFail)
-                    count = count + 1;
-                    disp('NUMBER OF FAILS: ');
-                    disp(count);
+                    numFail = numFail + 1;
+                   
+                    
                 end
             else
                 regionProps(inds(1)) = reg1;
@@ -498,14 +499,14 @@ for i = baseNum : stepRoi : nFrameROI
 
             if(isTouching == false)
                 if(isTouchingNow == true)
-%                     if (numKeyFrames < 9)
+                    if (numKeyFrames < 9)
                         touch(i, touchFigure, numKeyFrames);   %%%%%  TOUCH  %%%%%
                         figure(mainFigure);
                         if (numTouch == 0)
                             frameFirstTouch = i;
                         end
                         numTouch = numTouch + 1;
-%                     end
+                    end
 
                     numKeyFrames = numKeyFrames + 1;
                     isTouching = isTouchingNow;
@@ -520,29 +521,40 @@ for i = baseNum : stepRoi : nFrameROI
 
             if(isCoupling == false)
                 if(isCouplingNow == true)
-                    if (numKeyFrames < 9)
-                        sex(i, 'beforeSex', touchFigure, numKeyFrames);
-                        figure(mainFigure);   %%%%%  SEX  %%%%%
-                        if (numCopula == 0)
-                            frameFirstCopula = i;
+                    if(countSex < 7)
+                        countSex = countSex +1;
+                    else   
+                        if (numKeyFrames < 9)
+                            sex(i, 'beforeSex', touchFigure, numKeyFrames);
+                            figure(mainFigure);   %%%%%  SEX  %%%%%
+                            if (numCopula == 0)
+                                frameFirstCopula = i;
+                            end
+                            numCopula = numCopula + 1;
                         end
-                        numCopula = numCopula + 1;
-                    end
 
-                    numKeyFrames = numKeyFrames + 1;
-                    isCoupling = isCouplingNow;
+                        numKeyFrames = numKeyFrames + 1;
+                        isCoupling = isCouplingNow;
+                    end
                 end
             end
 
             if(isCoupling == true)
                 if(isCouplingNow == false)
                     if (numKeyFrames < 9)
+                    
+                    frameFirstCopula = i - frameFirstCopula;
+                    firstCopulatime = frameFirstCopula;
                     sex(i, 'afterSex', touchFigure, numKeyFrames);
                     figure(mainFigure);   %%%%%  SEX  %%%%%
                     end
 
                     numKeyFrames = numKeyFrames + 1;
                     isCoupling = isCouplingNow;
+                else  %if coupling true->true
+                    
+                    frameNowCouple = i - frameFirstCopula;
+                    frameNowCoupletime = frameNowCouple;
                 end
             end
 
@@ -552,8 +564,8 @@ for i = baseNum : stepRoi : nFrameROI
                         frameFirstCouple = i;
                         count = 1;
                     end
-                    timeStartCoupling = num2str(frameToTime(i - frameFirstCouple));
-                    timerAnnotation(timeStartCoupling, stringCoupleSeconds);
+                    frameNowCoupletimeString = num2str(frameToTime(i - frameFirstCouple));                    
+                    timerAnnotation(frameNowCoupletimeString, stringCoupleSeconds);
                     actionAnnotation(stringCoupleAction);
                 else
                     timeStartTouch = num2str(frameToTime(i));
@@ -641,7 +653,7 @@ end
 
 
 mFigure = figure('Name','Output Data')
-set(mFigure, 'Position', [300, 300, 300, 200]);
+set(mFigure, 'Position', [300, 300, 300, 300]);
 
 ax1 = axes('Position',[0 0 1 1],'Visible','off');
 % ax2 = axes('Position',[.3 .1 .6 .8]);
@@ -653,8 +665,8 @@ ax1 = axes('Position',[0 0 1 1],'Visible','off');
 title('Resumo de informacoes do Video:')
 axes(ax1) % sets ax1 to current axes
 
-texts = {'Distancia percorrida macho';'Distancia percorrida femea';'Num de toques';'Num de copulas';'Frame first touch';'Time first touch';'Frame first copula';'Time first copula';'Unidades'};
-vars = {num2str(sumMaleTotalTrail);num2str(sumFemaleTotalTrail);num2str(numTouch); num2str(numCopula); num2str(frameFirstTouch); num2str(frameToTime(frameFirstTouch)); num2str(frameFirstCouple);num2str(frameToTime(frameFirstCouple));'Unidades SI';};
+texts = {'Distancia percorrida macho';'Distancia percorrida femea';'Num de toques';'Num de copulas';'Frame first touch';'Time first touch';'Frame first copula';'Time first copula';'Duration first copula';'Num Falhas';'Unidades'};
+vars = {num2str(sumMaleTotalTrail);num2str(sumFemaleTotalTrail);num2str(numTouch); num2str(numCopula); num2str(frameFirstTouch); num2str(frameToTime(frameFirstTouch)); num2str(frameFirstCouple);num2str(frameToTime(frameFirstCouple));num2str(frameToTime(firstCopulatime));num2str(numFail);'Unidades SI';};
 names = strcat(texts, {': '}, vars);
 text(.025,0.6,names)
 
