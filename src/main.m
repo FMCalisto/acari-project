@@ -60,7 +60,7 @@ close all
 
 imgbk = imread('../newframes/frame0000.jpg');
 baseBkg = 0; % Initial Frame: 0
-baseNum = 500;
+baseNum = 1500;
 nTotalFrames = 7885; % Total: 7885 Frames
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -164,8 +164,8 @@ imgBkgBase = imgUInt8; % Imagem de background
 stepRoi = 15;
 nFrameROI = nTotalFrames;  % 23354 Frames used to compute background image
 
-for i = baseNum : stepRoi : nFrameROI - baseNum
-%for i = 0 : stepRoi : nFrameROI - baseNum
+for i = baseNum : stepRoi : nFrameROI
+%for i = 0 : stepRoi : nFrameROI
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %        EXAMPLE 1 & 2                           %
@@ -263,7 +263,7 @@ for i = baseNum : stepRoi : nFrameROI - baseNum
         
         % Inicio da rotina para filtrar falsos positivos
         sizeMaleTrail = size(maleTrail);
-        regnumBiggerThen = regnum > 1;
+        regnumBiggerThen = regnum > 0;
         sizeMaleTrailBiggerThen = sizeMaleTrail > 1;
         
         if (regnumBiggerThen & sizeMaleTrailBiggerThen)
@@ -274,9 +274,12 @@ for i = baseNum : stepRoi : nFrameROI - baseNum
             arrMale = [];
             arrFemale = [];
             
-            disp('MY NIGGA REGNUM: ')
-            disp(regnum);
+            if (i > 4800)
+                i = i;
+            end
             
+            disp('MY NIGGA REGNUM');
+            disp(regnum);
             for numRegProps = 1 : regnum
                 acariX = regionProps(inds(numRegProps)).Centroid(1,1);
                 acariY = regionProps(inds(numRegProps)).Centroid(1,2);
@@ -293,9 +296,25 @@ for i = baseNum : stepRoi : nFrameROI - baseNum
                 % regiao perto do male
                 arrMale = [arrMale; pdistOfNeighborM];
                 arrFemale = [arrFemale; pdistOfNeighborF];
+%                 if (pdistOfNeighborM < neighbor)
+%                     %ACEITAR REGIAO -> GUARDAR EM VAR
+%                     reg1 = regionProps(inds(numRegProps));
+%                 else
+%                     
+%                     %regionProps(inds(1),1).Area;
+%                 end
+%                 % regiao perto do female
+%                 if (pdistOfNeighborF < neighbor)
+%                     %ACEITAR REGIAO -> GUARDAR EM VAR
+%                     reg2 = regionProps(inds(numRegProps));
+%                 else
+%                     
+%                     %regionProps(inds(1),1).Area;
+%                 end
             end
             [MM IM] = min(arrMale);
             reg1 = regionProps(inds(IM));
+            
             [MF IF] = min(arrFemale);
             reg2 = regionProps(inds(IF));
             
@@ -306,8 +325,26 @@ for i = baseNum : stepRoi : nFrameROI - baseNum
             pdistReg1Reg2 = pdist(distReg1Reg2, 'euclidean');
             
             if (pdistReg1Reg2 == 0)
+                
+                lessFail = 4900;
+                biggerFail = 6000;
+                
                 regionProps(inds(1)) = reg1;
+                disp('MY NIGGA regionProps');
+                disp(regionProps(inds(1)));
                 regnum = 1;
+                disp('MY NIGGA REG1');
+                disp(reg1);
+                disp('MY NIGGA REG2');
+                disp(reg2);
+                
+                count = 0;
+                
+                if(i > lessFail & i < biggerFail)
+                    count = count + 1;
+                    disp('NUMBER OF FAILS: ');
+                    disp(count);
+                end
             else
                 regionProps(inds(1)) = reg1;
                 regionProps(inds(2)) = reg2;
@@ -376,12 +413,8 @@ for i = baseNum : stepRoi : nFrameROI - baseNum
                   maleTrail(sizeMaleTrail(1,1), 1), ...
                   maleTrail(sizeMaleTrail(1,1), 2)];
             D = pdist(DX, 'euclidean');
-%             disp('Male/Female Distance: ');
-%             disp(D);
 
             touchDistArr = [touchDistArr; D];
-
-            %disp(touchDistArr)
 
             %touchDistance = D < 10;
 
