@@ -598,6 +598,40 @@ end
 %                                                     % 
 % --------------------------------------------------- %
 % Create the figure
+sizeMaleTrail = size(maleTrail);
+sizeMaleAux = sizeMaleTrail(1,1);
+for i = 1 : 1 : (sizeMaleAux - 1)
+    next = i + 1;
+    maleAllDist = [maleTrail(i(1,1), 1), ...
+        maleTrail(i(1,1), 2); ...
+        maleTrail(next(1,1), 1), ...
+        maleTrail(next(1,1), 2)];
+    pdistMaleAll = pdist(maleAllDist, 'euclidean');
+    sumMaleTotalTrail = sumMaleTotalTrail + pdistMaleAll;
+end
+
+sizeFemaleTrail = size(femaleTrail);
+sizeFemaleAux = sizeFemaleTrail(1,1);
+for i = 1 : 1 : (sizeFemaleAux - 1)
+    next = i + 1;
+    femaleAllDist = [femaleTrail(i(1,1), 1), ...
+        femaleTrail(i(1,1), 2); ...
+        femaleTrail(next(1,1), 1), ...
+        femaleTrail(next(1,1), 2)];
+    pdistFemaleAll = pdist(femaleAllDist, 'euclidean');
+    sumFemaleTotalTrail = sumFemaleTotalTrail + pdistFemaleAll;
+end
+ 
+
+%                 
+%                 femaleAllDist = [femaleTrail(sizeMaleTrail(1,1), 1), ...
+%                   femaleTrail(sizeMaleTrail(1,1), 2); ...
+%                   acariA.Centroid(1,1), ...
+%                   acariA.Centroid(1,2)];
+%                 pdistFemaleAll = pdist(femaleAllDist, 'euclidean');
+%                 sumFemaleTotalTrail = sumFemaleTotalTrail + pdistFemaleAll;
+%                 end
+
 
 mFigure = figure('Name','Output Data')
 
@@ -612,8 +646,8 @@ ax1 = axes('Position',[0 0 1 1],'Visible','off');
 title('Resumo de informacoes do Video:')
 axes(ax1) % sets ax1 to current axes
 
-texts = {'Num de toques';'Num de copulas';'Frame first touch';'Time first touch';'Frame first copula';'Time first copula'};
-vars = {num2str(numTouch); num2str(numCopula); num2str(frameFirstTouch); num2str(frameToTime(frameFirstTouch)); num2str(frameFirstCopula + 30);num2str(frameToTime(frameFirstCopula + 30));};
+texts = {'Distancia percorrida macho';'Distancia percorrida femea';'Num de toques';'Num de copulas';'Frame first touch';'Time first touch';'Frame first copula';'Time first copula'};
+vars = {num2str(sumMaleTotalTrail);num2str(sumFemaleTotalTrail);num2str(numTouch); num2str(numCopula); num2str(frameFirstTouch); num2str(frameToTime(frameFirstTouch)); num2str(frameFirstCopula + 30);num2str(frameToTime(frameFirstCopula + 30));};
 names = strcat(texts, {': '}, vars);
 
 
