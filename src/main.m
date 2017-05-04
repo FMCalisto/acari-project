@@ -4,38 +4,6 @@ clc
 close all
 %     warning off;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Se nessario volto a apagar estas linhas 
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% obj = VideoReader('../videos/SonofMated10.avi');
-% 
-% disp('info');
-% info = get(obj);
-% disp(info);
-% 
-% disp('imagebackground ');
-% imagebackground = read(obj,1);
-% teste = figure(100);
-% imshow(imagebackground);
-% 
-% nFrames = obj.FrameRate;
-% str = sprintf('nFrames: %d',round(nFrames));
-% disp(str);
-% disp('CurrentTime');
-% CurrentTime = obj.CurrentTime;
-% disp(CurrentTime);
-%  
-% disp('Duration');
-% Duration = obj.Duration;
-% disp(Duration);
-% 
-% disp('Height');
-% Height = obj.Height;
-% disp(Height);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %        EXAMPLE 1: Normal Frames                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -232,11 +200,6 @@ for i = baseNum : stepRoi : nFrameROI
     
     regnum = length(inds);
     %%%%%%%%%%inds number explained
-    %if regnum = 1 ha' 1 regiao, logo acasalamento
-    %inds(1) - acaro1 e acaro2
-    %if regnum = 2 ha' 2 regioes
-    %inds(1) - acaro1
-    %inds(2) - acaro2
     sizeTrail = size(maleTrail);
     for k = sizeTrail-20 : 1 : sizeTrail
         sizeTrail = sizeTrail(1,1);
