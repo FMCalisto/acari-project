@@ -1,2 +1,2 @@
 # acari-project
-Detection and Tracking of Vessels in Oceanographic Airborne Images
+Sexual Selection and Mating in Acari Project
